@@ -47,6 +47,7 @@
 		L01000262900000100000001 /* VaultLockScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01000262900000100000001 /* VaultLockScreenView.swift */; };
 		L01000272900000100000001 /* VaultSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01000272900000100000001 /* VaultSettingsView.swift */; };
 		L01000282900000100000001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F01000282900000100000001 /* Assets.xcassets */; };
+		L01000292900000100000001 /* WindowsPhoneMetroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01000292900000100000001 /* WindowsPhoneMetroView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -92,6 +93,7 @@
 		F01000262900000100000001 /* VaultLockScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultLockScreenView.swift; sourceTree = "<group>"; };
 		F01000272900000100000001 /* VaultSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultSettingsView.swift; sourceTree = "<group>"; };
 		F01000282900000100000001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		F01000292900000100000001 /* WindowsPhoneMetroView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowsPhoneMetroView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -213,6 +215,7 @@
 				F01000252900000100000001 /* VaultGalleryView.swift */,
 				F01000262900000100000001 /* VaultLockScreenView.swift */,
 				F01000272900000100000001 /* VaultSettingsView.swift */,
+				F01000292900000100000001 /* WindowsPhoneMetroView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -333,6 +336,7 @@
 				L01000252900000100000001 /* VaultGalleryView.swift in Sources */,
 				L01000262900000100000001 /* VaultLockScreenView.swift in Sources */,
 				L01000272900000100000001 /* VaultSettingsView.swift in Sources */,
+				L01000292900000100000001 /* WindowsPhoneMetroView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
