@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LuminaVault - iPhone 14 Photo & Video Manager Simulator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      background-color: #0b0f19;
+      color: #f1f5f9;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", sans-serif;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+    .iphone-frame {
+      width: 393px;
+      height: 852px; /* iPhone 14 / 14 Pro resolution aspect */
+      border-radius: 54px;
+      border: 10px solid #1e293b;
+      background-color: #000;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 0 2px #334155;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+    .dynamic-island {
+      width: 122px;
+      height: 32px;
+      background-color: #000;
+      border-radius: 20px;
+      margin: 10px auto 4px auto;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 12px;
+      transition: all 0.3s ease;
+    }
+    .dynamic-island.expanded {
+      width: 320px;
+      height: 48px;
+      border-radius: 24px;
+    }
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 26px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+    }
+    .screen-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background-color: #090d16;
+      overflow-y: auto;
+      position: relative;
+    }
+    /* Hide scrollbars */
+    .screen-content::-webkit-scrollbar, .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .screen-content, .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .glass-tab-bar {
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.65);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+    }
+    .faceid-scanner {
+      animation: pulseScan 2s infinite ease-in-out;
+    }
+    @keyframes pulseScan {
+      0%, 100% { transform: scale(1); opacity: 0.9; }
+      50% { transform: scale(1.08); opacity: 1; filter: drop-shadow(0 0 15px rgba(234, 179, 8, 0.7)); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Hero Header -->
+  <div class="text-center mb-6 max-w-2xl">
+    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold mb-2">
+      <i class="fa-solid fa-mobile-screen-button"></i> iPhone 14 iOS Photo & Video Manager
+    </div>
+    <h1 class="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+      LuminaVault <span class="text-blue-500">iOS Simulator</span>
+    </h1>
+    <p class="text-sm text-slate-400 mt-1">
+      Featuring Full Library Scanner, Google Photos Backup, Apple Vision Smart Grouping (Documents, Faces, Areas, Screenshots, Short Photos) & Biometric Private Vault.
+    </p>
+  </div>
+
+  <!-- Interactive Controls Guide -->
+  <div class="flex flex-wrap justify-center gap-2 mb-4 text-xs">
+    <button onclick="switchTab('gallery')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium border border-slate-700">
+      📸 1. Photos Gallery
+    </button>
+    <button onclick="switchTab('smartgroups')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium border border-slate-700">
+      ✨ 2. Smart Groups
+    </button>
+    <button onclick="switchTab('filemanager')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium border border-slate-700">
+      🗂️ 3. File Manager
+    </button>
+    <button onclick="switchTab('backup')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium border border-slate-700">
+      ☁️ 4. Google Backup
+    </button>
+    <button onclick="switchTab('vault')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium border border-slate-700">
+      🔒 5. Private Vault
+    </button>
+  </div>
+
+  <!-- iPhone 14 Device Simulation -->
+  <div class="iphone-frame">
+    <!-- Dynamic Island -->
+    <div id="dynamicIsland" class="dynamic-island">
+      <div id="islandLeft" class="flex items-center gap-1.5 text-[10px] text-cyan-400 font-bold">
+        <i class="fa-solid fa-cloud-arrow-up text-[9px]"></i>
+        <span id="islandStatusText">Sync</span>
+      </div>
+      <div id="islandRight" class="flex items-center gap-1">
+        <div class="w-2.5 h-2.5 rounded-full bg-blue-500 animate-ping"></div>
+        <div class="w-3 h-3 rounded-full bg-slate-800 border border-slate-700"></div>
+      </div>
+    </div>
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <span>9:41</span>
+      <div class="flex items-center gap-1.5 text-xs">
+        <i class="fa-solid fa-signal text-[11px]"></i>
+        <i class="fa-solid fa-wifi text-[11px]"></i>
+        <i class="fa-solid fa-battery-full text-[13px]"></i>
+      </div>
+    </div>
+
+    <!-- Main Screen Content Container -->
+    <div id="screenContent" class="screen-content">
+      
+      <!-- ================= TAB 1: GALLERY ================= -->
+      <div id="tab-gallery" class="tab-pane p-4 flex flex-col gap-3">
+        <!-- Top App Bar -->
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-xl font-bold text-white tracking-tight">Lumina Photos</h2>
+            <p id="gallerySubtitle" class="text-[11px] text-slate-400">Full iPhone 14 Library</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="simulateFullPhoneScan()" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-blue-400 text-xs shadow hover:bg-slate-700" title="Rescan Phone">
+              <i id="scanIcon" class="fa-solid fa-arrows-rotate"></i>
+            </button>
+            <button id="selectModeBtn" onclick="toggleSelectMode()" class="px-2.5 py-1 rounded-full bg-blue-600/30 text-blue-400 text-xs font-bold border border-blue-500/30">
+              Select
+            </button>
+          </div>
+        </div>
+
+        <!-- Phone Scanner Banner (Active / Triggerable) -->
+        <div id="scanBanner" class="p-3 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white text-sm shadow">
+              <i class="fa-solid fa-hard-drive"></i>
+            </div>
+            <div>
+              <div id="scanStatusTitle" class="text-xs font-bold text-white">iPhone 14 Library Synced</div>
+              <div id="scanStatusDesc" class="text-[10px] text-slate-400">12 items indexed • 62.8 MB</div>
+            </div>
+          </div>
+          <button onclick="simulateFullPhoneScan()" class="px-2.5 py-1 rounded-lg bg-blue-500 text-white text-[11px] font-semibold hover:bg-blue-600">
+            Scan Phone
+          </button>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="relative">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-xs"></i>
+          <input type="text" id="gallerySearchInput" oninput="filterGallery()" placeholder="Search text, receipts, faces, or areas..." class="w-full bg-slate-900 border border-slate-800 rounded-xl py-2 pl-8 pr-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+        </div>
+
+        <!-- Filter Segment Bar -->
+        <div class="flex gap-1.5 overflow-x-auto no-scrollbar py-0.5 text-xs">
+          <button onclick="setFilterSegment('all')" class="seg-btn px-3 py-1.5 rounded-full bg-blue-600 text-white font-semibold whitespace-nowrap" data-filter="all">All</button>
+          <button onclick="setFilterSegment('photos')" class="seg-btn px-3 py-1.5 rounded-full bg-slate-800 text-slate-300 font-medium whitespace-nowrap" data-filter="photos">Photos</button>
+          <button onclick="setFilterSegment('videos')" class="seg-btn px-3 py-1.5 rounded-full bg-slate-800 text-slate-300 font-medium whitespace-nowrap" data-filter="videos">Videos</button>
+          <button onclick="setFilterSegment('live')" class="seg-btn px-3 py-1.5 rounded-full bg-slate-800 text-slate-300 font-medium whitespace-nowrap" data-filter="live">Live & Short</button>
+          <button onclick="setFilterSegment('favorites')" class="seg-btn px-3 py-1.5 rounded-full bg-slate-800 text-slate-300 font-medium whitespace-nowrap" data-filter="favorites">Favorites</button>
+        </div>
+
+        <!-- Photo Grid -->
+        <div id="galleryGrid" class="grid grid-cols-3 gap-1.5 pb-24">
+          <!-- Populated dynamically via JS -->
+        </div>
+
+        <!-- Multi-Select Action Floating Bar -->
+        <div id="selectActionBar" class="hidden absolute bottom-16 left-4 right-4 p-3 bg-slate-900/95 backdrop-blur-md rounded-2xl border border-slate-700 shadow-2xl flex items-center justify-between z-30">
+          <div class="flex items-center gap-2">
+            <button onclick="lockSelectedInVault()" class="px-3 py-1.5 rounded-xl bg-yellow-500 text-black font-bold text-xs flex items-center gap-1.5 shadow">
+              <i class="fa-solid fa-lock"></i> Lock in Vault
+            </button>
+            <button onclick="backupSelectedToCloud()" class="px-3 py-1.5 rounded-xl bg-blue-600 text-white font-bold text-xs flex items-center gap-1.5 shadow">
+              <i class="fa-solid fa-cloud-arrow-up"></i> Backup
+            </button>
+          </div>
+          <span id="selectedCountText" class="text-xs text-slate-300">0 selected</span>
+        </div>
+      </div>
+
+      <!-- ================= TAB 2: SMART GROUPS ================= -->
+      <div id="tab-smartgroups" class="tab-pane hidden p-4 flex flex-col gap-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-xl font-bold text-white tracking-tight">Smart Groups</h2>
+            <p class="text-[11px] text-slate-400">On-Device Apple Vision AI Classification</p>
+          </div>
+          <button onclick="runVisionScan()" class="px-2.5 py-1 rounded-full bg-purple-600/30 text-purple-300 text-xs font-bold border border-purple-500/30">
+            Rescan AI
+          </button>
+        </div>
+
+        <!-- 5 Requested Categories Cards -->
+        <div class="flex flex-col gap-2.5 pb-20">
+          <!-- 1. Documents & Receipts -->
+          <div onclick="openGroupDetail('documents')" class="glass-card p-3.5 flex items-center justify-between cursor-pointer hover:border-orange-500/40 transition">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white text-lg shadow">
+                <i class="fa-solid fa-file-invoice"></i>
+              </div>
+              <div>
+                <div class="text-sm font-bold text-white flex items-center gap-1.5">
+                  Documents & OCR <span class="px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-400 text-[9px] font-bold">OCR</span>
+                </div>
+                <div class="text-[11px] text-slate-400">Scanned receipts, invoices & whiteboards</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5 text-xs text-slate-400 font-bold">
+              <span id="count-documents">3 items</span>
+              <i class="fa-solid fa-chevron-right text-[10px]"></i>
+            </div>
+          </div>
+
+          <!-- 2. Face Areas & People -->
+          <div onclick="openGroupDetail('faces')" class="glass-card p-3.5 flex items-center justify-between cursor-pointer hover:border-purple-500/40 transition">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-lg shadow">
+                <i class="fa-solid fa-user-group"></i>
+              </div>
+              <div>
+                <div class="text-sm font-bold text-white flex items-center gap-1.5">
+                  Face Areas & People <span class="px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-400 text-[9px] font-bold">Vision</span>
+                </div>
+                <div class="text-[11px] text-slate-400">Facial area bounding crops & portraits</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5 text-xs text-slate-400 font-bold">
+              <span id="count-faces">3 items</span>
+              <i class="fa-solid fa-chevron-right text-[10px]"></i>
+            </div>
+          </div>
+
+          <!-- 3. Area & Locations -->
+          <div onclick="openGroupDetail('areas')" class="glass-card p-3.5 flex items-center justify-between cursor-pointer hover:border-teal-500/40 transition">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center text-white text-lg shadow">
+                <i class="fa-solid fa-location-dot"></i>
+              </div>
+              <div>
+                <div class="text-sm font-bold text-white flex items-center gap-1.5">
+                  Area & Locations <span class="px-1.5 py-0.5 rounded bg-teal-500/20 text-teal-400 text-[9px] font-bold">GPS</span>
+                </div>
+                <div class="text-[11px] text-slate-400">Reverse geocoded cities & landmarks</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5 text-xs text-slate-400 font-bold">
+              <span id="count-areas">5 clusters</span>
+              <i class="fa-solid fa-chevron-right text-[10px]"></i>
+            </div>
+          </div>
+
+          <!-- 4. Screenshots & Screen Recordings -->
+          <div onclick="openGroupDetail('screenshots')" class="glass-card p-3.5 flex items-center justify-between cursor-pointer hover:border-cyan-500/40 transition">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white text-lg shadow">
+                <i class="fa-solid fa-camera"></i>
+              </div>
+              <div>
+                <div class="text-sm font-bold text-white flex items-center gap-1.5">
+                  Screenshots & Clips <span class="px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-400 text-[9px] font-bold">iOS</span>
+                </div>
+                <div class="text-[11px] text-slate-400">Display captures & screen video recordings</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5 text-xs text-slate-400 font-bold">
+              <span id="count-screenshots">3 items</span>
+              <i class="fa-solid fa-chevron-right text-[10px]"></i>
+            </div>
+          </div>
+
+          <!-- 5. Short Photos & Live Clips -->
+          <div onclick="openGroupDetail('shortphotos')" class="glass-card p-3.5 flex items-center justify-between cursor-pointer hover:border-pink-500/40 transition">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center text-white text-lg shadow">
+                <i class="fa-solid fa-circle-dot"></i>
+              </div>
+              <div>
+                <div class="text-sm font-bold text-white flex items-center gap-1.5">
+                  Short Photos & Live <span class="px-1.5 py-0.5 rounded bg-pink-500/20 text-pink-400 text-[9px] font-bold">&lt;15s</span>
+                </div>
+                <div class="text-[11px] text-slate-400">Live Photos, bursts &amp; short video clips</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5 text-xs text-slate-400 font-bold">
+              <span id="count-shortphotos">3 items</span>
+              <i class="fa-solid fa-chevron-right text-[10px]"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= TAB 3: FILE MANAGER ================= -->
+      <div id="tab-filemanager" class="tab-pane hidden p-4 flex flex-col gap-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-xl font-bold text-white tracking-tight">File Manager</h2>
+            <p class="text-[11px] text-slate-400">iPhone 14 Internal Storage Inspector</p>
+          </div>
+          <button onclick="refreshStorageBreakdown()" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-blue-400 text-xs">
+            <i class="fa-solid fa-rotate"></i>
+          </button>
+        </div>
+
+        <!-- Phone Storage Meter -->
+        <div class="glass-card p-4">
+          <div class="flex items-center justify-between mb-2">
+            <div>
+              <div class="text-xs font-bold text-white">iPhone 14 Storage</div>
+              <div class="text-[11px] text-slate-400">72.4 GB of 128 GB Used</div>
+            </div>
+            <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-xs font-bold">
+              55.6 GB Free
+            </span>
+          </div>
+
+          <!-- Segmented Storage Bar -->
+          <div class="w-full h-3 rounded-full bg-slate-800 overflow-hidden flex mb-2.5">
+            <div class="h-full bg-blue-500" style="width: 20%;" title="Photos"></div>
+            <div class="h-full bg-purple-500" style="width: 15%;" title="Videos"></div>
+            <div class="h-full bg-orange-500" style="width: 6%;" title="Documents"></div>
+            <div class="h-full bg-cyan-500" style="width: 4%;" title="Screenshots"></div>
+            <div class="h-full bg-yellow-500" style="width: 5%;" title="Private Vault"></div>
+            <div class="h-full bg-slate-600" style="width: 25%;" title="iOS & Apps"></div>
+          </div>
+
+          <!-- Legend -->
+          <div class="grid grid-cols-2 gap-2 text-[10px] text-slate-400">
+            <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-blue-500"></span> Photos (22.5 MB)</div>
+            <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-purple-500"></span> 4K Videos (32.8 MB)</div>
+            <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-orange-500"></span> Documents (8.0 MB)</div>
+            <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-cyan-500"></span> Screenshots (2.4 MB)</div>
+            <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-yellow-500"></span> Private Vault (40.1 MB)</div>
+            <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-slate-600"></span> System &amp; Other</div>
+          </div>
+        </div>
+
+        <!-- 1-Tap Duplicate Cleaner -->
+        <div class="glass-card p-3.5 border-orange-500/30">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-clone text-orange-400 text-sm"></i>
+              <span class="text-xs font-bold text-white">Duplicate Photos Found</span>
+            </div>
+            <span class="text-[10px] text-orange-400 font-bold">1 cluster (2 files)</span>
+          </div>
+          <p class="text-[11px] text-slate-400 mb-2.5">Identical shots detected. Clean to reclaim 4.2 MB storage.</p>
+          <button onclick="cleanDuplicates()" id="cleanDupeBtn" class="w-full py-1.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow">
+            <i class="fa-solid fa-broom"></i> Clean Duplicate Photos
+          </button>
+        </div>
+
+        <!-- Large Files Explorer -->
+        <div>
+          <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Large Files &amp; 4K Media</h3>
+          <div id="largeFilesList" class="flex flex-col gap-2 pb-20">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= TAB 4: GOOGLE BACKUP ================= -->
+      <div id="tab-backup" class="tab-pane hidden p-4 flex flex-col gap-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-xl font-bold text-white tracking-tight">Google Photos</h2>
+            <p class="text-[11px] text-slate-400">Automatic Cloud Backup &amp; Storage</p>
+          </div>
+          <button onclick="toggleBackupSettings()" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-300 text-xs">
+            <i class="fa-solid fa-gear"></i>
+          </button>
+        </div>
+
+        <!-- Google Account Card -->
+        <div class="glass-card p-4">
+          <div id="googleConnectedState" class="flex flex-col gap-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-red-500 via-amber-400 to-blue-500 flex items-center justify-center text-white font-bold shadow">
+                  G
+                </div>
+                <div>
+                  <div class="text-xs font-bold text-white">Alex Rivera</div>
+                  <div class="text-[10px] text-slate-400">user.iphone14@gmail.com</div>
+                </div>
+              </div>
+              <span class="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 text-[10px] font-bold border border-blue-500/30">
+                Connected
+              </span>
+            </div>
+
+            <!-- Google One Quota -->
+            <div>
+              <div class="flex justify-between text-[11px] mb-1">
+                <span class="text-slate-300 font-medium">Google One Storage</span>
+                <span id="googleStorageText" class="text-slate-400">4.8 GB of 15 GB Used</span>
+              </div>
+              <div class="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
+                <div id="googleStorageBar" class="h-full bg-blue-500 transition-all duration-500" style="width: 32%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Backup Action & Progress Card -->
+        <div class="glass-card p-4">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <div id="backupStatusTitle" class="text-xs font-bold text-white">Cloud Backup Ready</div>
+              <div id="backupPendingDesc" class="text-[10px] text-slate-400">8 items pending upload</div>
+            </div>
+            <button onclick="toggleCloudBackup()" id="backupTriggerBtn" class="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center gap-1.5 shadow">
+              <i class="fa-solid fa-cloud-arrow-up"></i> Sync All Now
+            </button>
+          </div>
+
+          <!-- Progress Bar -->
+          <div id="backupProgressSection" class="hidden">
+            <div class="flex justify-between text-[10px] text-slate-400 mb-1">
+              <span id="uploadingFileName">Uploading: Sarah_Portrait.heic</span>
+              <span id="uploadPercent">45%</span>
+            </div>
+            <div class="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
+              <div id="activeProgressBar" class="h-full bg-blue-500 transition-all duration-200" style="width: 45%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Backup Queue / Log -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Upload Tasks &amp; History</h3>
+            <span class="text-[10px] text-slate-500">Google Photos REST API</span>
+          </div>
+          <div id="backupQueueList" class="flex flex-col gap-2 pb-20">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= TAB 5: PRIVATE VAULT ================= -->
+      <div id="tab-vault" class="tab-pane hidden p-4 flex flex-col gap-3 min-h-full">
+        <!-- Locked View (Face ID & PIN) -->
+        <div id="vaultLockedView" class="flex flex-col items-center justify-center my-auto py-8 gap-5">
+          <!-- Face ID Icon Button -->
+          <div onclick="simulateFaceIDUnlock()" class="cursor-pointer flex flex-col items-center gap-2 group">
+            <div class="w-24 h-24 rounded-full bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center text-yellow-400 text-4xl shadow-xl faceid-scanner group-hover:bg-yellow-500/20">
+              <i class="fa-solid fa-fingerprint"></i>
+            </div>
+            <span class="text-xs font-bold text-yellow-400">Tap for Face ID</span>
+          </div>
+
+          <div class="text-center">
+            <h3 class="text-lg font-bold text-white">Private Secure Vault</h3>
+            <p class="text-[11px] text-slate-400">Protected with 256-bit AES-GCM Encryption</p>
+          </div>
+
+          <!-- PIN Dots -->
+          <div class="flex gap-3">
+            <span id="dot-0" class="w-3.5 h-3.5 rounded-full bg-slate-800 border border-slate-700"></span>
+            <span id="dot-1" class="w-3.5 h-3.5 rounded-full bg-slate-800 border border-slate-700"></span>
+            <span id="dot-2" class="w-3.5 h-3.5 rounded-full bg-slate-800 border border-slate-700"></span>
+            <span id="dot-3" class="w-3.5 h-3.5 rounded-full bg-slate-800 border border-slate-700"></span>
+          </div>
+          <div id="pinErrorText" class="text-[11px] text-red-400 font-semibold hidden">Incorrect PIN. Try 1414 or 0000.</div>
+
+          <!-- Numeric Keypad -->
+          <div class="grid grid-cols-3 gap-3 w-64 pt-2">
+            <button onclick="pressPin('1')" class="h-14 rounded-full bg-slate-800 hover:bg-slate-700 text-white text-lg font-bold">1</button>
+            <button onclick="pressPin('2')" class="h-14 rounded-full bg-slate-800 hover:bg-slate-700 text-white text-lg font-bold">2</button>
+            <button onclick="pressPin('3')" class="h-14 rounded-full bg-slate-800 hover:bg-slate-700 text-white text-lg font-bold">3</button>
+            <button onclick="pressPin('4')" class="h-14 rounded-full bg-slate-800 hover:bg-slate-700 text-white text-lg font-bold">4</button>
+            <button onclick="pressPin('5')" class="h-14 rounded-full bg-slate-800 hover:bg-slate-700 text-white text-lg font-bold">5</button>
+            <button onclick="pressPin('6')" class="h-14 rounded-full bg-slate-800 hover:bg-slate-700 text-white text-lg font-bold">6</button>
+            <button onclick="pressPin('7')" class="h-14 rounded-full bg-slate-800 hover:bg-slate-700 text-white text-lg font-bold">7</button>
+            <button onclick="pressPin('8')" class="h-14 rounded-full bg-slate-800 hover:bg-slate-700 text-white text-lg font-bold">8</button>
+            <button onclick="pressPin('9')" class="h-14 rounded-full bg-slate-800 hover:bg-slate-700 text-white text-lg font-bold">9</button>
+            <button onclick="simulateFaceIDUnlock()" class="h-14 rounded-full bg-slate-800 hover:bg-slate-700 text-yellow-400 text-base font-bold">
+              <i class="fa-solid fa-face-smile"></i>
+            </button>
+            <button onclick="pressPin('0')" class="h-14 rounded-full bg-slate-800 hover:bg-slate-700 text-white text-lg font-bold">0</button>
+            <button onclick="deletePin()" class="h-14 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 text-sm font-bold">
+              <i class="fa-solid fa-delete-left"></i>
+            </button>
+          </div>
+          <div class="text-[10px] text-slate-500 text-center">Decoy PIN: 9999 • Master: 1414</div>
+        </div>
+
+        <!-- Unlocked View (Encrypted Gallery) -->
+        <div id="vaultUnlockedView" class="hidden flex flex-col gap-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-xl font-bold text-white tracking-tight flex items-center gap-1.5">
+                <i class="fa-solid fa-shield-halved text-yellow-400 text-base"></i> Private Vault
+              </h2>
+              <p class="text-[11px] text-slate-400">Decrypted Sandbox Session</p>
+            </div>
+            <button onclick="lockVault()" class="px-3 py-1 rounded-full bg-yellow-500/20 text-yellow-400 text-xs font-bold border border-yellow-500/40 flex items-center gap-1">
+              <i class="fa-solid fa-lock"></i> Lock
+            </button>
+          </div>
+
+          <div id="vaultDecoyBanner" class="hidden p-2 rounded-lg bg-orange-500/20 border border-orange-500/40 text-orange-300 text-[11px] font-bold text-center">
+            ⚠️ Decoy Stealth Mode Active (Clean Vault)
+          </div>
+
+          <div class="glass-card p-3 flex items-center justify-between">
+            <div class="text-xs text-slate-300">
+              <span id="vaultItemCount">3</span> encrypted files • Excluded from iCloud
+            </div>
+            <span class="px-2 py-0.5 rounded bg-yellow-500/10 text-yellow-400 text-[10px] font-bold">
+              AES-GCM
+            </span>
+          </div>
+
+          <!-- Vault Grid -->
+          <div id="vaultGrid" class="grid grid-cols-3 gap-1.5 pb-24">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bottom Tab Navigation Bar (iOS 5 Tabs) -->
+    <div class="glass-tab-bar h-16 flex items-center justify-around px-2 z-40">
+      <button onclick="switchTab('gallery')" class="tab-item flex flex-col items-center gap-1 text-blue-500" data-target="gallery">
+        <i class="fa-solid fa-images text-base"></i>
+        <span class="text-[10px] font-semibold">Photos</span>
+      </button>
+      <button onclick="switchTab('smartgroups')" class="tab-item flex flex-col items-center gap-1 text-slate-400 hover:text-white" data-target="smartgroups">
+        <i class="fa-solid fa-wand-magic-sparkles text-base"></i>
+        <span class="text-[10px] font-semibold">Groups</span>
+      </button>
+      <button onclick="switchTab('filemanager')" class="tab-item flex flex-col items-center gap-1 text-slate-400 hover:text-white" data-target="filemanager">
+        <i class="fa-solid fa-folder-tree text-base"></i>
+        <span class="text-[10px] font-semibold">Manager</span>
+      </button>
+      <button onclick="switchTab('backup')" class="tab-item flex flex-col items-center gap-1 text-slate-400 hover:text-white relative" data-target="backup">
+        <i class="fa-solid fa-cloud-arrow-up text-base"></i>
+        <span class="text-[10px] font-semibold">Backup</span>
+        <span id="backupBadge" class="absolute -top-1 right-2 w-2 h-2 rounded-full bg-blue-500"></span>
+      </button>
+      <button onclick="switchTab('vault')" class="tab-item flex flex-col items-center gap-1 text-slate-400 hover:text-white" data-target="vault">
+        <i class="fa-solid fa-shield-halved text-base"></i>
+        <span class="text-[10px] font-semibold">Vault</span>
+      </button>
+    </div>
+
+    <!-- Home Indicator -->
+    <div class="w-32 h-1 bg-slate-600 rounded-full mx-auto my-1.5"></div>
+  </div>
+
+  <!-- Media Detail Modal -->
+  <div id="detailModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+      <div class="p-3 border-b border-slate-800 flex items-center justify-between">
+        <div class="text-xs font-bold text-white truncate max-w-[200px]" id="modalTitle">File Details</div>
+        <button onclick="closeDetailModal()" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center text-xs">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="p-4 overflow-y-auto flex flex-col gap-3">
+        <!-- Media Canvas / Preview -->
+        <div id="modalMediaCanvas" class="w-full h-44 rounded-xl bg-slate-950 flex flex-col items-center justify-center text-4xl text-slate-600 shadow-inner relative overflow-hidden">
+          <i id="modalMediaIcon" class="fa-solid fa-image"></i>
+        </div>
+
+        <!-- OCR Box if exists -->
+        <div id="modalOcrBox" class="hidden p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs">
+          <div class="font-bold text-amber-400 mb-1 flex items-center justify-between">
+            <span><i class="fa-solid fa-eye mr-1"></i> Recognized OCR Text</span>
+            <button onclick="copyOcrText()" class="text-[10px] bg-amber-500/20 px-2 py-0.5 rounded text-amber-300">Copy</button>
+          </div>
+          <div id="modalOcrText" class="text-slate-300 font-mono text-[11px] whitespace-pre-wrap"></div>
+        </div>
+
+        <!-- EXIF Info List -->
+        <div class="bg-slate-950/70 rounded-xl p-3 flex flex-col gap-1.5 text-xs">
+          <div class="flex justify-between text-slate-400">
+            <span>Dimensions</span>
+            <span id="modalDimensions" class="text-white font-medium">3024 × 4032</span>
+          </div>
+          <div class="flex justify-between text-slate-400">
+            <span>File Size</span>
+            <span id="modalSize" class="text-white font-medium">2.4 MB</span>
+          </div>
+          <div class="flex justify-between text-slate-400">
+            <span>Camera</span>
+            <span id="modalCamera" class="text-white font-medium">iPhone 14 (26mm ƒ/1.5)</span>
+          </div>
+          <div class="flex justify-between text-slate-400">
+            <span>Location</span>
+            <span id="modalLocation" class="text-white font-medium">San Francisco, CA</span>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col gap-2 pt-1">
+          <button onclick="modalLockInVault()" class="w-full py-2.5 rounded-xl bg-yellow-500 hover:bg-yellow-400 text-black font-bold text-xs flex items-center justify-center gap-1.5 shadow">
+            <i class="fa-solid fa-shield-halved"></i> Lock in Private Vault (AES-GCM)
+          </button>
+          <button onclick="modalBackupToGoogle()" class="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow">
+            <i class="fa-solid fa-cloud-arrow-up"></i> Backup to Google Photos
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Data Store
+    let mediaItems = [
+      {
+        id: "1",
+        filename: "Store_Invoice_8849.jpg",
+        type: "image",
+        subtypes: ["document"],
+        sizeBytes: 1840000,
+        dims: "3024 × 4032",
+        area: "Downtown Financial District",
+        date: "Today, 2:15 PM",
+        camera: "iPhone 14 (26mm ƒ/1.5)",
+        text: "APPLE STORE 5TH AVE\nRECEIPT #884920\niPhone 14 Case $49.00\nTotal: $53.29 USD\nThank you for shopping!",
+        backup: "completed",
+        isFavorite: false,
+        bg: "from-amber-500/30 to-orange-600/50"
+      },
+      {
+        id: "2",
+        filename: "Sarah_Portrait_Sunset.heic",
+        type: "image",
+        subtypes: ["face"],
+        sizeBytes: 2450000,
+        dims: "3024 × 4032",
+        area: "San Francisco, CA",
+        date: "Yesterday, 6:40 PM",
+        camera: "iPhone 14 (26mm ƒ/1.5 ISO 80)",
+        facesCount: 1,
+        personTag: "Sarah",
+        backup: "completed",
+        isFavorite: true,
+        bg: "from-indigo-500/30 to-purple-600/50"
+      },
+      {
+        id: "3",
+        filename: "Screenshot_CryptoChart.png",
+        type: "image",
+        subtypes: ["screenshot"],
+        sizeBytes: 1450000,
+        dims: "1170 × 2532",
+        area: "Home",
+        date: "2 days ago",
+        camera: "iOS Display Grab",
+        text: "Bitcoin $98,450 +4.2%\nPortfolio: $14,280.50",
+        backup: "queued",
+        isFavorite: false,
+        bg: "from-cyan-500/30 to-blue-600/50"
+      },
+      {
+        id: "4",
+        filename: "Beach_Waves_Live.heic",
+        type: "livePhoto",
+        subtypes: ["shortphoto"],
+        sizeBytes: 4600000,
+        dims: "4032 × 3024",
+        area: "Honolulu, Hawaii",
+        date: "3 days ago",
+        camera: "iPhone 14 (Live Photo)",
+        backup: "queued",
+        isFavorite: true,
+        bg: "from-pink-500/30 to-rose-600/50"
+      },
+      {
+        id: "5",
+        filename: "Team_Dinner_Group.heic",
+        type: "image",
+        subtypes: ["face"],
+        sizeBytes: 3890000,
+        dims: "4032 × 3024",
+        area: "New York, NY",
+        date: "4 days ago",
+        camera: "iPhone 14 (26mm ƒ/1.5 ISO 120)",
+        facesCount: 3,
+        personTag: "David & Sarah",
+        backup: "notUploaded",
+        isFavorite: false,
+        bg: "from-purple-500/30 to-indigo-600/50"
+      },
+      {
+        id: "6",
+        filename: "Espresso_Pour_Clip.mov",
+        type: "video",
+        subtypes: ["shortphoto"],
+        sizeBytes: 9400000,
+        dims: "1080 × 1920",
+        duration: "0:07",
+        area: "Artisan Coffee Roasters",
+        date: "5 days ago",
+        camera: "iPhone 14 4K@60fps",
+        backup: "notUploaded",
+        isFavorite: false,
+        bg: "from-purple-600/30 to-slate-900"
+      },
+      {
+        id: "7",
+        filename: "Rental_Agreement_2026.jpg",
+        type: "image",
+        subtypes: ["document"],
+        sizeBytes: 3210000,
+        dims: "2480 × 3508",
+        area: "Office Center",
+        date: "6 days ago",
+        camera: "iPhone 14 Document Capture",
+        text: "RESIDENTIAL LEASE AGREEMENT\nTerm: Nov 2026 - Nov 2027\nMonthly Rent: $2,400",
+        backup: "notUploaded",
+        isFavorite: false,
+        bg: "from-amber-500/30 to-orange-600/50"
+      },
+      {
+        id: "8",
+        filename: "Tokyo_Shibuya_Night.heic",
+        type: "image",
+        subtypes: [],
+        sizeBytes: 4200000,
+        dims: "4032 × 3024",
+        area: "Tokyo, Japan",
+        date: "1 week ago",
+        camera: "iPhone 14 Night Mode",
+        backup: "completed",
+        isFavorite: true,
+        bg: "from-teal-500/30 to-blue-600/50"
+      },
+      {
+        id: "9",
+        filename: "Screen_Recording_AppDemo.mp4",
+        type: "video",
+        subtypes: ["screenshot"],
+        sizeBytes: 18400000,
+        dims: "1170 × 2532",
+        duration: "0:24",
+        area: "Work",
+        date: "1 week ago",
+        camera: "iOS Screen Recording",
+        backup: "notUploaded",
+        isFavorite: false,
+        bg: "from-cyan-600/30 to-slate-900"
+      },
+      {
+        id: "10",
+        filename: "Alex_Graduation_Smile.heic",
+        type: "image",
+        subtypes: ["face"],
+        sizeBytes: 2120000,
+        dims: "3024 × 4032",
+        area: "Boston, MA",
+        date: "2 weeks ago",
+        camera: "iPhone 14 Portrait Mode",
+        facesCount: 1,
+        personTag: "Alex",
+        backup: "notUploaded",
+        isFavorite: true,
+        bg: "from-purple-500/30 to-indigo-600/50"
+      },
+      {
+        id: "11",
+        filename: "Grand_Canyon_Panorama.heic",
+        type: "image",
+        subtypes: [],
+        sizeBytes: 12800000,
+        dims: "10800 × 3600",
+        area: "Arizona, USA",
+        date: "3 weeks ago",
+        camera: "iPhone 14 Panorama Mode",
+        backup: "notUploaded",
+        isFavorite: true,
+        bg: "from-emerald-500/30 to-teal-600/50"
+      },
+      {
+        id: "12",
+        filename: "Conference_Whiteboard.jpg",
+        type: "image",
+        subtypes: ["document"],
+        sizeBytes: 2950000,
+        dims: "4032 × 3024",
+        area: "Silicon Valley, CA",
+        date: "1 month ago",
+        camera: "iPhone 14",
+        text: "Sprint Architecture:\n1. PhotoKit Sync\n2. Apple Vision OCR\n3. Google Cloud API\n4. AES-GCM Encrypted Vault",
+        backup: "completed",
+        isFavorite: false,
+        bg: "from-amber-500/30 to-orange-600/50"
+      }
+    ];
+
+    let vaultItems = [
+      {
+        id: "v1",
+        filename: "Passport_Scan_Confidential.heic",
+        type: "image",
+        size: "4.1 MB",
+        notes: "Government ID - Highly Confidential",
+        lockedDate: "Nov 5, 2026"
+      },
+      {
+        id: "v2",
+        filename: "Crypto_Seed_Secret.png",
+        type: "image",
+        size: "1.2 MB",
+        notes: "Hardware wallet backup seed phrase",
+        lockedDate: "Oct 28, 2026"
+      },
+      {
+        id: "v3",
+        filename: "Private_Anniversary_Video.mp4",
+        type: "video",
+        size: "34.8 MB",
+        notes: "Family private surprise clip",
+        lockedDate: "Oct 12, 2026"
+      }
+    ];
+
+    let currentSegment = "all";
+    let isSelectMode = false;
+    let selectedIds = new Set();
+    let currentDetailItem = null;
+    let enteredPin = "";
+    let isVaultUnlocked = false;
+
+    // Initialize
+    function init() {
+      renderGallery();
+      renderLargeFiles();
+      renderBackupQueue();
+      updateCounts();
+    }
+
+    function switchTab(tabName) {
+      document.querySelectorAll(".tab-pane").forEach(el => el.classList.add("hidden"));
+      const target = document.getElementById("tab-" + tabName);
+      if (target) target.classList.remove("hidden");
+
+      // Update Tab Bar Icons
+      document.querySelectorAll(".tab-item").forEach(btn => {
+        if (btn.getAttribute("data-target") === tabName) {
+          btn.classList.add("text-blue-500");
+          btn.classList.remove("text-slate-400");
+        } else {
+          btn.classList.remove("text-blue-500");
+          btn.classList.add("text-slate-400");
+        }
+      });
+
+      if (tabName === "filemanager") {
+        renderLargeFiles();
+      }
+    }
+
+    function renderGallery() {
+      const grid = document.getElementById("galleryGrid");
+      grid.innerHTML = "";
+
+      let filtered = mediaItems;
+      const search = document.getElementById("gallerySearchInput").value.toLowerCase();
+      if (search) {
+        filtered = filtered.filter(item => 
+          item.filename.toLowerCase().includes(search) ||
+          item.area.toLowerCase().includes(search) ||
+          (item.text && item.text.toLowerCase().includes(search))
+        );
+      }
+
+      if (currentSegment === "photos") filtered = filtered.filter(i => i.type === "image");
+      if (currentSegment === "videos") filtered = filtered.filter(i => i.type === "video");
+      if (currentSegment === "live") filtered = filtered.filter(i => i.subtypes.includes("shortphoto") || i.type === "livePhoto");
+      if (currentSegment === "favorites") filtered = filtered.filter(i => i.isFavorite);
+
+      filtered.forEach(item => {
+        const isSelected = selectedIds.has(item.id);
+        const card = document.createElement("div");
+        card.className = `relative aspect-square rounded-xl bg-gradient-to-br ${item.bg} border border-slate-700/60 p-1.5 flex flex-col justify-between cursor-pointer overflow-hidden group shadow`;
+        
+        let icon = "fa-image";
+        if (item.type === "video") icon = "fa-video";
+        if (item.type === "livePhoto") icon = "fa-circle-dot";
+        if (item.subtypes.includes("document")) icon = "fa-file-lines";
+
+        // Badges
+        let topBadge = "";
+        if (item.subtypes.includes("document")) {
+          topBadge = `<span class="bg-orange-500 text-white text-[8px] font-black px-1 rounded">OCR</span>`;
+        } else if (item.subtypes.includes("face")) {
+          topBadge = `<span class="bg-purple-600 text-white text-[8px] font-black px-1 rounded"><i class="fa-solid fa-user text-[7px]"></i> ${item.facesCount || 1}</span>`;
+        } else if (item.subtypes.includes("screenshot")) {
+          topBadge = `<span class="bg-cyan-500 text-black text-[8px] font-black px-1 rounded">SHOT</span>`;
+        }
+
+        let cloudIcon = "fa-cloud-slash text-slate-500";
+        if (item.backup === "completed") cloudIcon = "fa-cloud-check text-emerald-400";
+        if (item.backup === "queued") cloudIcon = "fa-cloud-arrow-up text-blue-400 animate-pulse";
+
+        card.innerHTML = `
+          <div class="flex items-center justify-between z-10">
+            ${topBadge || "<span></span>"}
+            <i class="fa-solid ${cloudIcon} text-[10px] bg-black/60 p-1 rounded-full"></i>
+          </div>
+          <div class="my-auto self-center text-2xl text-white/80 group-hover:scale-110 transition">
+            <i class="fa-solid ${icon}"></i>
+          </div>
+          <div class="flex items-center justify-between text-[9px] text-white/90 z-10">
+            <span class="truncate max-w-[65px] font-medium">${item.filename}</span>
+            ${item.isFavorite ? '<i class="fa-solid fa-heart text-red-500 text-[8px]"></i>' : ''}
+          </div>
+          ${isSelectMode ? `
+            <div class="absolute inset-0 bg-black/40 flex items-start justify-end p-1.5">
+              <div class="w-5 h-5 rounded-full ${isSelected ? 'bg-blue-600 text-white' : 'bg-slate-800/80 border border-white'} flex items-center justify-center text-[10px]">
+                ${isSelected ? '<i class="fa-solid fa-check"></i>' : ''}
+              </div>
+            </div>
+          ` : ''}
+        `;
+
+        card.onclick = () => {
+          if (isSelectMode) {
+            toggleItemSelect(item.id);
+          } else {
+            openDetailModal(item);
+          }
+        };
+
+        grid.appendChild(card);
+      });
+    }
+
+    function setFilterSegment(seg) {
+      currentSegment = seg;
+      document.querySelectorAll(".seg-btn").forEach(btn => {
+        if (btn.getAttribute("data-filter") === seg) {
+          btn.className = "seg-btn px-3 py-1.5 rounded-full bg-blue-600 text-white font-semibold whitespace-nowrap";
+        } else {
+          btn.className = "seg-btn px-3 py-1.5 rounded-full bg-slate-800 text-slate-300 font-medium whitespace-nowrap";
+        }
+      });
+      renderGallery();
+    }
+
+    function filterGallery() {
+      renderGallery();
+    }
+
+    function toggleSelectMode() {
+      isSelectMode = !isSelectMode;
+      const btn = document.getElementById("selectModeBtn");
+      const bar = document.getElementById("selectActionBar");
+      if (isSelectMode) {
+        btn.textContent = "Done";
+        btn.className = "px-2.5 py-1 rounded-full bg-blue-600 text-white text-xs font-bold";
+        bar.classList.remove("hidden");
+      } else {
+        btn.textContent = "Select";
+        btn.className = "px-2.5 py-1 rounded-full bg-blue-600/30 text-blue-400 text-xs font-bold border border-blue-500/30";
+        bar.classList.add("hidden");
+        selectedIds.clear();
+      }
+      renderGallery();
+    }
+
+    function toggleItemSelect(id) {
+      if (selectedIds.has(id)) {
+        selectedIds.delete(id);
+      } else {
+        selectedIds.add(id);
+      }
+      document.getElementById("selectedCountText").textContent = `${selectedIds.size} selected`;
+      renderGallery();
+    }
+
+    function lockSelectedInVault() {
+      if (selectedIds.size === 0) return;
+      selectedIds.forEach(id => {
+        const item = mediaItems.find(m => m.id === id);
+        if (item) {
+          vaultItems.push({
+            id: "v_" + Date.now(),
+            filename: item.filename,
+            type: item.type,
+            size: formatBytes(item.sizeBytes),
+            notes: item.text || "Locked from Camera Roll",
+            lockedDate: "Just now"
+          });
+        }
+      });
+      mediaItems = mediaItems.filter(m => !selectedIds.has(m.id));
+      selectedIds.clear();
+      toggleSelectMode();
+      renderGallery();
+      updateCounts();
+      alert("Selected items encrypted and moved to Private Vault!");
+    }
+
+    function backupSelectedToCloud() {
+      selectedIds.forEach(id => {
+        const item = mediaItems.find(m => m.id === id);
+        if (item) item.backup = "queued";
+      });
+      toggleSelectMode();
+      renderGallery();
+      switchTab("backup");
+      triggerBackupQueueProcess();
+    }
+
+    // Modal Operations
+    function openDetailModal(item) {
+      currentDetailItem = item;
+      document.getElementById("modalTitle").textContent = item.filename;
+      document.getElementById("modalDimensions").textContent = item.dims;
+      document.getElementById("modalSize").textContent = formatBytes(item.sizeBytes);
+      document.getElementById("modalCamera").textContent = item.camera;
+      document.getElementById("modalLocation").textContent = item.area;
+
+      const canvas = document.getElementById("modalMediaCanvas");
+      canvas.className = `w-full h-44 rounded-xl bg-gradient-to-br ${item.bg} flex flex-col items-center justify-center text-4xl text-white/90 shadow-inner`;
+      
+      let icon = "fa-image";
+      if (item.type === "video") icon = "fa-video";
+      if (item.subtypes.includes("document")) icon = "fa-file-lines";
+      document.getElementById("modalMediaIcon").className = `fa-solid ${icon}`;
+
+      const ocrBox = document.getElementById("modalOcrBox");
+      if (item.text) {
+        ocrBox.classList.remove("hidden");
+        document.getElementById("modalOcrText").textContent = item.text;
+      } else {
+        ocrBox.classList.add("hidden");
+      }
+
+      document.getElementById("detailModal").classList.remove("hidden");
+    }
+
+    function closeDetailModal() {
+      document.getElementById("detailModal").classList.add("hidden");
+      currentDetailItem = null;
+    }
+
+    function copyOcrText() {
+      if (currentDetailItem && currentDetailItem.text) {
+        navigator.clipboard.writeText(currentDetailItem.text);
+        alert("OCR Text copied to clipboard!");
+      }
+    }
+
+    function modalLockInVault() {
+      if (!currentDetailItem) return;
+      vaultItems.push({
+        id: "v_" + Date.now(),
+        filename: currentDetailItem.filename,
+        type: currentDetailItem.type,
+        size: formatBytes(currentDetailItem.sizeBytes),
+        notes: currentDetailItem.text || "Encrypted from Gallery",
+        lockedDate: "Just now"
+      });
+      mediaItems = mediaItems.filter(m => m.id !== currentDetailItem.id);
+      closeDetailModal();
+      renderGallery();
+      updateCounts();
+      alert("File encrypted with AES-256 and stored in Private Vault!");
+    }
+
+    function modalBackupToGoogle() {
+      if (!currentDetailItem) return;
+      currentDetailItem.backup = "queued";
+      closeDetailModal();
+      renderGallery();
+      switchTab("backup");
+      triggerBackupQueueProcess();
+    }
+
+    // Google Cloud Sync Engine
+    function toggleCloudBackup() {
+      const unbacked = mediaItems.filter(m => m.backup !== "completed");
+      unbacked.forEach(m => m.backup = "queued");
+      renderGallery();
+      triggerBackupQueueProcess();
+    }
+
+    function triggerBackupQueueProcess() {
+      const progressSection = document.getElementById("backupProgressSection");
+      const title = document.getElementById("backupStatusTitle");
+      const desc = document.getElementById("backupPendingDesc");
+      const triggerBtn = document.getElementById("backupTriggerBtn");
+      const island = document.getElementById("dynamicIsland");
+
+      progressSection.classList.remove("hidden");
+      title.textContent = "Backing up to Google Photos...";
+      triggerBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Syncing...';
+      island.classList.add("expanded");
+      document.getElementById("islandStatusText").textContent = "Google Upload (2.4 MB/s)";
+
+      let percent = 0;
+      const interval = setInterval(() => {
+        percent += 15;
+        document.getElementById("activeProgressBar").style.width = percent + "%";
+        document.getElementById("uploadPercent").textContent = percent + "%";
+
+        if (percent >= 100) {
+          clearInterval(interval);
+          mediaItems.forEach(m => {
+            if (m.backup === "queued") m.backup = "completed";
+          });
+          progressSection.classList.add("hidden");
+          title.textContent = "All Photos Backed up to Google Cloud";
+          desc.textContent = "12 items backed up • 0 pending";
+          triggerBtn.innerHTML = '<i class="fa-solid fa-check"></i> Synced';
+          triggerBtn.className = "px-3.5 py-1.5 rounded-xl bg-emerald-600 text-white font-bold text-xs flex items-center gap-1.5";
+          island.classList.remove("expanded");
+          document.getElementById("islandStatusText").textContent = "Synced";
+          renderGallery();
+          renderBackupQueue();
+        }
+      }, 350);
+    }
+
+    function renderBackupQueue() {
+      const container = document.getElementById("backupQueueList");
+      container.innerHTML = "";
+
+      mediaItems.forEach(item => {
+        const isCompleted = item.backup === "completed";
+        const row = document.createElement("div");
+        row.className = "glass-card p-3 flex items-center justify-between text-xs";
+        row.innerHTML = `
+          <div class="flex items-center gap-2.5">
+            <i class="fa-solid ${isCompleted ? 'fa-cloud-check text-emerald-400' : 'fa-cloud-arrow-up text-blue-400'} text-sm"></i>
+            <div>
+              <div class="font-bold text-white">${item.filename}</div>
+              <div class="text-[10px] text-slate-400">${isCompleted ? 'Backed up to Google Photos' : 'Queued for Cloud Sync'}</div>
+            </div>
+          </div>
+          <span class="text-[10px] text-slate-400 font-mono">${formatBytes(item.sizeBytes)}</span>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    // Private Vault Security & Keypad
+    function simulateFaceIDUnlock() {
+      const island = document.getElementById("dynamicIsland");
+      island.classList.add("expanded");
+      document.getElementById("islandStatusText").textContent = "Face ID Verified";
+      setTimeout(() => {
+        island.classList.remove("expanded");
+        unlockVault(false);
+      }, 600);
+    }
+
+    function pressPin(digit) {
+      if (enteredPin.length < 4) {
+        enteredPin += digit;
+        updatePinDots();
+        if (enteredPin.length === 4) {
+          verifyPin();
+        }
+      }
+    }
+
+    function deletePin() {
+      if (enteredPin.length > 0) {
+        enteredPin = enteredPin.slice(0, -1);
+        updatePinDots();
+      }
+    }
+
+    function updatePinDots() {
+      for (let i = 0; i < 4; i++) {
+        const dot = document.getElementById("dot-" + i);
+        if (i < enteredPin.length) {
+          dot.className = "w-3.5 h-3.5 rounded-full bg-yellow-400 border border-yellow-300 shadow-sm";
+        } else {
+          dot.className = "w-3.5 h-3.5 rounded-full bg-slate-800 border border-slate-700";
+        }
+      }
+    }
+
+    function verifyPin() {
+      if (enteredPin === "1414" || enteredPin === "0000") {
+        unlockVault(false);
+      } else if (enteredPin === "9999") {
+        // Decoy PIN
+        unlockVault(true);
+      } else {
+        document.getElementById("pinErrorText").classList.remove("hidden");
+        enteredPin = "";
+        updatePinDots();
+      }
+    }
+
+    function unlockVault(isDecoy) {
+      isVaultUnlocked = true;
+      document.getElementById("vaultLockedView").classList.add("hidden");
+      document.getElementById("vaultUnlockedView").classList.remove("hidden");
+      document.getElementById("vaultDecoyBanner").classList.toggle("hidden", !isDecoy);
+      renderVaultGrid(isDecoy);
+    }
+
+    function lockVault() {
+      isVaultUnlocked = false;
+      enteredPin = "";
+      updatePinDots();
+      document.getElementById("pinErrorText").classList.add("hidden");
+      document.getElementById("vaultLockedView").classList.remove("hidden");
+      document.getElementById("vaultUnlockedView").classList.add("hidden");
+    }
+
+    function renderVaultGrid(isDecoy) {
+      const grid = document.getElementById("vaultGrid");
+      grid.innerHTML = "";
+      const itemsToRender = isDecoy ? [] : vaultItems;
+
+      document.getElementById("vaultItemCount").textContent = itemsToRender.length;
+
+      if (itemsToRender.length === 0) {
+        grid.innerHTML = `<div class="col-span-3 text-center py-10 text-xs text-slate-500">Vault is empty.</div>`;
+        return;
+      }
+
+      itemsToRender.forEach(item => {
+        const card = document.createElement("div");
+        card.className = "relative aspect-square rounded-xl bg-gradient-to-br from-amber-600/30 to-yellow-900/50 border border-yellow-500/40 p-2 flex flex-col justify-between cursor-pointer";
+        card.innerHTML = `
+          <div class="flex justify-between items-center text-[10px] text-yellow-400">
+            <i class="fa-solid fa-lock"></i>
+            <span class="text-[8px] bg-black/60 px-1 rounded">${item.size}</span>
+          </div>
+          <div class="self-center text-2xl text-yellow-400/90 my-auto">
+            <i class="fa-solid ${item.type === 'video' ? 'fa-video' : 'fa-image'}"></i>
+          </div>
+          <div class="text-[9px] text-white font-bold truncate">${item.filename}</div>
+        `;
+        card.onclick = () => {
+          if (confirm(`Restore "${item.filename}" to iPhone Camera Roll?`)) {
+            mediaItems.unshift({
+              id: "restored_" + Date.now(),
+              filename: item.filename,
+              type: item.type,
+              subtypes: [],
+              sizeBytes: 2500000,
+              dims: "3024 × 4032",
+              area: "Restored",
+              date: "Just now",
+              camera: "iPhone 14 Decrypted",
+              backup: "notUploaded",
+              isFavorite: false,
+              bg: "from-blue-500/30 to-teal-600/50"
+            });
+            vaultItems = vaultItems.filter(v => v.id !== item.id);
+            renderVaultGrid(isDecoy);
+            renderGallery();
+            updateCounts();
+          }
+        };
+        grid.appendChild(card);
+      });
+    }
+
+    // File Manager Operations
+    function renderLargeFiles() {
+      const container = document.getElementById("largeFilesList");
+      container.innerHTML = "";
+      const large = mediaItems.filter(m => m.sizeBytes >= 4000000).sort((a,b) => b.sizeBytes - a.sizeBytes);
+
+      large.forEach(item => {
+        const row = document.createElement("div");
+        row.className = "glass-card p-3 flex items-center justify-between text-xs";
+        row.innerHTML = `
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-blue-400">
+              <i class="fa-solid ${item.type === 'video' ? 'fa-video' : 'fa-image'}"></i>
+            </div>
+            <div>
+              <div class="font-bold text-white truncate max-w-[170px]">${item.filename}</div>
+              <div class="text-[10px] text-slate-400">${item.dims} • ${item.date}</div>
+            </div>
+          </div>
+          <span class="font-bold text-red-400 font-mono">${formatBytes(item.sizeBytes)}</span>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function cleanDuplicates() {
+      const btn = document.getElementById("cleanDupeBtn");
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Cleaning Duplicates...';
+      setTimeout(() => {
+        btn.innerHTML = '<i class="fa-solid fa-check"></i> Cleaned 4.2 MB Storage';
+        btn.className = "w-full py-1.5 rounded-lg bg-emerald-600 text-white font-bold text-xs flex items-center justify-center gap-1.5";
+      }, 700);
+    }
+
+    function simulateFullPhoneScan() {
+      const icon = document.getElementById("scanIcon");
+      icon.classList.add("fa-spin");
+      document.getElementById("scanStatusTitle").textContent = "Scanning iPhone 14 Storage...";
+      setTimeout(() => {
+        icon.classList.remove("fa-spin");
+        document.getElementById("scanStatusTitle").textContent = "iPhone 14 Library Synced";
+        document.getElementById("scanStatusDesc").textContent = `${mediaItems.length} items indexed • 62.8 MB`;
+        alert("Full Phone Scan Complete: 12 photos & videos indexed with EXIF metadata, OCR text, and face coordinates.");
+      }, 800);
+    }
+
+    function runVisionScan() {
+      alert("Apple Vision scan completed: On-device Neural Engine classified 3 documents, 3 face clusters, and 5 geolocation areas.");
+    }
+
+    function openGroupDetail(group) {
+      if (group === "documents") {
+        setFilterSegment("all");
+        document.getElementById("gallerySearchInput").value = "receipt";
+        switchTab("gallery");
+        filterGallery();
+      } else if (group === "faces") {
+        setFilterSegment("all");
+        switchTab("gallery");
+      } else if (group === "areas") {
+        switchTab("gallery");
+      } else if (group === "screenshots") {
+        setFilterSegment("all");
+        document.getElementById("gallerySearchInput").value = "screenshot";
+        switchTab("gallery");
+        filterGallery();
+      } else if (group === "shortphotos") {
+        setFilterSegment("live");
+        switchTab("gallery");
+      }
+    }
+
+    function updateCounts() {
+      document.getElementById("count-documents").textContent = mediaItems.filter(m => m.subtypes.includes("document")).length + " items";
+      document.getElementById("count-faces").textContent = mediaItems.filter(m => m.subtypes.includes("face")).length + " items";
+      document.getElementById("count-screenshots").textContent = mediaItems.filter(m => m.subtypes.includes("screenshot")).length + " items";
+      document.getElementById("count-shortphotos").textContent = mediaItems.filter(m => m.subtypes.includes("shortphoto") || m.type === "livePhoto").length + " items";
+    }
+
+    function formatBytes(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    }
+
+    init();
+  </script>
+</body>
+</html>

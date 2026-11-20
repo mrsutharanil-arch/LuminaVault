@@ -1,0 +1,462 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		L01000012900000100000001 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01000012900000100000001 /* AppState.swift */; };
+		L01000022900000100000001 /* LuminaVaultApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01000022900000100000001 /* LuminaVaultApp.swift */; };
+		L01000032900000100000001 /* MediaItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01000032900000100000001 /* MediaItem.swift */; };
+		L01000042900000100000001 /* MediaCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01000042900000100000001 /* MediaCategory.swift */; };
+		L01000052900000100000001 /* StorageBreakdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01000052900000100000001 /* StorageBreakdown.swift */; };
+		L01000062900000100000001 /* GoogleAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01000062900000100000001 /* GoogleAccount.swift */; };
+		L01000072900000100000001 /* VaultItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01000072900000100000001 /* VaultItem.swift */; };
+		L01000082900000100000001 /* PhotoLibraryScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01000082900000100000001 /* PhotoLibraryScanner.swift */; };
+		L01000092900000100000001 /* VisionGroupingEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01000092900000100000001 /* VisionGroupingEngine.swift */; };
+		L010000A2900000100000001 /* LocationGroupingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F010000A2900000100000001 /* LocationGroupingService.swift */; };
+		L010000B2900000100000001 /* GooglePhotosService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F010000B2900000100000001 /* GooglePhotosService.swift */; };
+		L010000C2900000100000001 /* PrivateVaultService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F010000C2900000100000001 /* PrivateVaultService.swift */; };
+		L010000D2900000100000001 /* FileManagerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F010000D2900000100000001 /* FileManagerService.swift */; };
+		L010000E2900000100000001 /* GalleryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F010000E2900000100000001 /* GalleryViewModel.swift */; };
+		L010000F2900000100000001 /* SmartGroupingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F010000F2900000100000001 /* SmartGroupingViewModel.swift */; };
+		L01000102900000100000001 /* FileManagerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01000102900000100000001 /* FileManagerViewModel.swift */; };
+		L01000112900000100000001 /* BackupViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01000112900000100000001 /* BackupViewModel.swift */; };
+		L01000122900000100000001 /* VaultViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01000122900000100000001 /* VaultViewModel.swift */; };
+		L01000132900000100000001 /* GlassCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01000132900000100000001 /* GlassCard.swift */; };
+		L01000142900000100000001 /* MediaThumbnailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01000142900000100000001 /* MediaThumbnailView.swift */; };
+		L01000152900000100000001 /* CircularProgressBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01000152900000100000001 /* CircularProgressBar.swift */; };
+		L01000162900000100000001 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01000162900000100000001 /* MainTabView.swift */; };
+		L01000172900000100000001 /* FilterSegmentBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01000172900000100000001 /* FilterSegmentBar.swift */; };
+		L01000182900000100000001 /* GalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01000182900000100000001 /* GalleryView.swift */; };
+		L01000192900000100000001 /* MediaDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01000192900000100000001 /* MediaDetailView.swift */; };
+		L010001A2900000100000001 /* SmartGroupsHubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F010001A2900000100000001 /* SmartGroupsHubView.swift */; };
+		L010001B2900000100000001 /* DocumentScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F010001B2900000100000001 /* DocumentScannerView.swift */; };
+		L010001C2900000100000001 /* FaceAreaGroupingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F010001C2900000100000001 /* FaceAreaGroupingView.swift */; };
+		L010001D2900000100000001 /* LocationGroupingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F010001D2900000100000001 /* LocationGroupingView.swift */; };
+		L010001E2900000100000001 /* ScreenshotManagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F010001E2900000100000001 /* ScreenshotManagerView.swift */; };
+		L010001F2900000100000001 /* ShortPhotosView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F010001F2900000100000001 /* ShortPhotosView.swift */; };
+		L01000202900000100000001 /* FileManagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01000202900000100000001 /* FileManagerView.swift */; };
+		L01000212900000100000001 /* ExifDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01000212900000100000001 /* ExifDetailSheet.swift */; };
+		L01000222900000100000001 /* GooglePhotosBackupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01000222900000100000001 /* GooglePhotosBackupView.swift */; };
+		L01000232900000100000001 /* BackupSettingsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01000232900000100000001 /* BackupSettingsSheet.swift */; };
+		L01000242900000100000001 /* VaultContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01000242900000100000001 /* VaultContainerView.swift */; };
+		L01000252900000100000001 /* VaultGalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01000252900000100000001 /* VaultGalleryView.swift */; };
+		L01000262900000100000001 /* VaultLockScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01000262900000100000001 /* VaultLockScreenView.swift */; };
+		L01000272900000100000001 /* VaultSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01000272900000100000001 /* VaultSettingsView.swift */; };
+		L01000282900000100000001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F01000282900000100000001 /* Assets.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		P01000012900000100000001 /* LuminaVault.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LuminaVault.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F01000012900000100000001 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		F01000022900000100000001 /* LuminaVaultApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LuminaVaultApp.swift; sourceTree = "<group>"; };
+		F01000992900000100000001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		F01000032900000100000001 /* MediaItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaItem.swift; sourceTree = "<group>"; };
+		F01000042900000100000001 /* MediaCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaCategory.swift; sourceTree = "<group>"; };
+		F01000052900000100000001 /* StorageBreakdown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageBreakdown.swift; sourceTree = "<group>"; };
+		F01000062900000100000001 /* GoogleAccount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleAccount.swift; sourceTree = "<group>"; };
+		F01000072900000100000001 /* VaultItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultItem.swift; sourceTree = "<group>"; };
+		F01000082900000100000001 /* PhotoLibraryScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoLibraryScanner.swift; sourceTree = "<group>"; };
+		F01000092900000100000001 /* VisionGroupingEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionGroupingEngine.swift; sourceTree = "<group>"; };
+		F010000A2900000100000001 /* LocationGroupingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationGroupingService.swift; sourceTree = "<group>"; };
+		F010000B2900000100000001 /* GooglePhotosService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GooglePhotosService.swift; sourceTree = "<group>"; };
+		F010000C2900000100000001 /* PrivateVaultService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivateVaultService.swift; sourceTree = "<group>"; };
+		F010000D2900000100000001 /* FileManagerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileManagerService.swift; sourceTree = "<group>"; };
+		F010000E2900000100000001 /* GalleryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryViewModel.swift; sourceTree = "<group>"; };
+		F010000F2900000100000001 /* SmartGroupingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartGroupingViewModel.swift; sourceTree = "<group>"; };
+		F01000102900000100000001 /* FileManagerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileManagerViewModel.swift; sourceTree = "<group>"; };
+		F01000112900000100000001 /* BackupViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupViewModel.swift; sourceTree = "<group>"; };
+		F01000122900000100000001 /* VaultViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultViewModel.swift; sourceTree = "<group>"; };
+		F01000132900000100000001 /* GlassCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassCard.swift; sourceTree = "<group>"; };
+		F01000142900000100000001 /* MediaThumbnailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaThumbnailView.swift; sourceTree = "<group>"; };
+		F01000152900000100000001 /* CircularProgressBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularProgressBar.swift; sourceTree = "<group>"; };
+		F01000162900000100000001 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		F01000172900000100000001 /* FilterSegmentBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterSegmentBar.swift; sourceTree = "<group>"; };
+		F01000182900000100000001 /* GalleryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryView.swift; sourceTree = "<group>"; };
+		F01000192900000100000001 /* MediaDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaDetailView.swift; sourceTree = "<group>"; };
+		F010001A2900000100000001 /* SmartGroupsHubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartGroupsHubView.swift; sourceTree = "<group>"; };
+		F010001B2900000100000001 /* DocumentScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentScannerView.swift; sourceTree = "<group>"; };
+		F010001C2900000100000001 /* FaceAreaGroupingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaceAreaGroupingView.swift; sourceTree = "<group>"; };
+		F010001D2900000100000001 /* LocationGroupingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationGroupingView.swift; sourceTree = "<group>"; };
+		F010001E2900000100000001 /* ScreenshotManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotManagerView.swift; sourceTree = "<group>"; };
+		F010001F2900000100000001 /* ShortPhotosView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortPhotosView.swift; sourceTree = "<group>"; };
+		F01000202900000100000001 /* FileManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileManagerView.swift; sourceTree = "<group>"; };
+		F01000212900000100000001 /* ExifDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExifDetailSheet.swift; sourceTree = "<group>"; };
+		F01000222900000100000001 /* GooglePhotosBackupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GooglePhotosBackupView.swift; sourceTree = "<group>"; };
+		F01000232900000100000001 /* BackupSettingsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupSettingsSheet.swift; sourceTree = "<group>"; };
+		F01000242900000100000001 /* VaultContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultContainerView.swift; sourceTree = "<group>"; };
+		F01000252900000100000001 /* VaultGalleryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultGalleryView.swift; sourceTree = "<group>"; };
+		F01000262900000100000001 /* VaultLockScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultLockScreenView.swift; sourceTree = "<group>"; };
+		F01000272900000100000001 /* VaultSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultSettingsView.swift; sourceTree = "<group>"; };
+		F01000282900000100000001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		W01000012900000100000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		G01000012900000100000001 = {
+			isa = PBXGroup;
+			children = (
+				G01000022900000100000001 /* LuminaVault */,
+				G01000032900000100000001 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		G01000022900000100000001 /* LuminaVault */ = {
+			isa = PBXGroup;
+			children = (
+				G01000042900000100000001 /* App */,
+				G01000052900000100000001 /* Models */,
+				G01000062900000100000001 /* Services */,
+				G01000072900000100000001 /* ViewModels */,
+				G01000082900000100000001 /* Components */,
+				G01000092900000100000001 /* Views */,
+				G010000A2900000100000001 /* Resources */,
+			);
+			path = LuminaVault;
+			sourceTree = "<group>";
+		};
+		G01000032900000100000001 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				P01000012900000100000001 /* LuminaVault.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		G01000042900000100000001 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				F01000012900000100000001 /* AppState.swift */,
+				F01000022900000100000001 /* LuminaVaultApp.swift */,
+				F01000992900000100000001 /* Info.plist */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		G01000052900000100000001 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				F01000032900000100000001 /* MediaItem.swift */,
+				F01000042900000100000001 /* MediaCategory.swift */,
+				F01000052900000100000001 /* StorageBreakdown.swift */,
+				F01000062900000100000001 /* GoogleAccount.swift */,
+				F01000072900000100000001 /* VaultItem.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		G01000062900000100000001 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				F01000082900000100000001 /* PhotoLibraryScanner.swift */,
+				F01000092900000100000001 /* VisionGroupingEngine.swift */,
+				F010000A2900000100000001 /* LocationGroupingService.swift */,
+				F010000B2900000100000001 /* GooglePhotosService.swift */,
+				F010000C2900000100000001 /* PrivateVaultService.swift */,
+				F010000D2900000100000001 /* FileManagerService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		G01000072900000100000001 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				F010000E2900000100000001 /* GalleryViewModel.swift */,
+				F010000F2900000100000001 /* SmartGroupingViewModel.swift */,
+				F01000102900000100000001 /* FileManagerViewModel.swift */,
+				F01000112900000100000001 /* BackupViewModel.swift */,
+				F01000122900000100000001 /* VaultViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		G01000082900000100000001 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				F01000132900000100000001 /* GlassCard.swift */,
+				F01000142900000100000001 /* MediaThumbnailView.swift */,
+				F01000152900000100000001 /* CircularProgressBar.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		G01000092900000100000001 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				F01000162900000100000001 /* MainTabView.swift */,
+				F01000172900000100000001 /* FilterSegmentBar.swift */,
+				F01000182900000100000001 /* GalleryView.swift */,
+				F01000192900000100000001 /* MediaDetailView.swift */,
+				F010001A2900000100000001 /* SmartGroupsHubView.swift */,
+				F010001B2900000100000001 /* DocumentScannerView.swift */,
+				F010001C2900000100000001 /* FaceAreaGroupingView.swift */,
+				F010001D2900000100000001 /* LocationGroupingView.swift */,
+				F010001E2900000100000001 /* ScreenshotManagerView.swift */,
+				F010001F2900000100000001 /* ShortPhotosView.swift */,
+				F01000202900000100000001 /* FileManagerView.swift */,
+				F01000212900000100000001 /* ExifDetailSheet.swift */,
+				F01000222900000100000001 /* GooglePhotosBackupView.swift */,
+				F01000232900000100000001 /* BackupSettingsSheet.swift */,
+				F01000242900000100000001 /* VaultContainerView.swift */,
+				F01000252900000100000001 /* VaultGalleryView.swift */,
+				F01000262900000100000001 /* VaultLockScreenView.swift */,
+				F01000272900000100000001 /* VaultSettingsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		G010000A2900000100000001 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				F01000282900000100000001 /* Assets.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		T01000012900000100000001 /* LuminaVault */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C01000012900000100000001 /* Build configuration list for PBXNativeTarget "LuminaVault" */;
+			buildPhases = (
+				S01000012900000100000001 /* Sources */,
+				W01000012900000100000001 /* Frameworks */,
+				R01000012900000100000001 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LuminaVault;
+			productName = LuminaVault;
+			productReference = P01000012900000100000001 /* LuminaVault.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		001000012900000100000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					T01000012900000100000001 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = C01000022900000100000001 /* Build configuration list for PBXProject "LuminaVault" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = G01000012900000100000001;
+			productRefGroup = G01000032900000100000001 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				T01000012900000100000001 /* LuminaVault */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		R01000012900000100000001 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				L01000282900000100000001 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		S01000012900000100000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				L01000012900000100000001 /* AppState.swift in Sources */,
+				L01000022900000100000001 /* LuminaVaultApp.swift in Sources */,
+				L01000032900000100000001 /* MediaItem.swift in Sources */,
+				L01000042900000100000001 /* MediaCategory.swift in Sources */,
+				L01000052900000100000001 /* StorageBreakdown.swift in Sources */,
+				L01000062900000100000001 /* GoogleAccount.swift in Sources */,
+				L01000072900000100000001 /* VaultItem.swift in Sources */,
+				L01000082900000100000001 /* PhotoLibraryScanner.swift in Sources */,
+				L01000092900000100000001 /* VisionGroupingEngine.swift in Sources */,
+				L010000A2900000100000001 /* LocationGroupingService.swift in Sources */,
+				L010000B2900000100000001 /* GooglePhotosService.swift in Sources */,
+				L010000C2900000100000001 /* PrivateVaultService.swift in Sources */,
+				L010000D2900000100000001 /* FileManagerService.swift in Sources */,
+				L010000E2900000100000001 /* GalleryViewModel.swift in Sources */,
+				L010000F2900000100000001 /* SmartGroupingViewModel.swift in Sources */,
+				L01000102900000100000001 /* FileManagerViewModel.swift in Sources */,
+				L01000112900000100000001 /* BackupViewModel.swift in Sources */,
+				L01000122900000100000001 /* VaultViewModel.swift in Sources */,
+				L01000132900000100000001 /* GlassCard.swift in Sources */,
+				L01000142900000100000001 /* MediaThumbnailView.swift in Sources */,
+				L01000152900000100000001 /* CircularProgressBar.swift in Sources */,
+				L01000162900000100000001 /* MainTabView.swift in Sources */,
+				L01000172900000100000001 /* FilterSegmentBar.swift in Sources */,
+				L01000182900000100000001 /* GalleryView.swift in Sources */,
+				L01000192900000100000001 /* MediaDetailView.swift in Sources */,
+				L010001A2900000100000001 /* SmartGroupsHubView.swift in Sources */,
+				L010001B2900000100000001 /* DocumentScannerView.swift in Sources */,
+				L010001C2900000100000001 /* FaceAreaGroupingView.swift in Sources */,
+				L010001D2900000100000001 /* LocationGroupingView.swift in Sources */,
+				L010001E2900000100000001 /* ScreenshotManagerView.swift in Sources */,
+				L010001F2900000100000001 /* ShortPhotosView.swift in Sources */,
+				L01000202900000100000001 /* FileManagerView.swift in Sources */,
+				L01000212900000100000001 /* ExifDetailSheet.swift in Sources */,
+				L01000222900000100000001 /* GooglePhotosBackupView.swift in Sources */,
+				L01000232900000100000001 /* BackupSettingsSheet.swift in Sources */,
+				L01000242900000100000001 /* VaultContainerView.swift in Sources */,
+				L01000252900000100000001 /* VaultGalleryView.swift in Sources */,
+				L01000262900000100000001 /* VaultLockScreenView.swift in Sources */,
+				L01000272900000100000001 /* VaultSettingsView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		C01000032900000100000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		C01000042900000100000001 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_OPTIMIZATION_LEVEL = s;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		C01000052900000100000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = LuminaVault/App/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.luminavault.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1";
+			};
+			name = Debug;
+		};
+		C01000062900000100000001 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = LuminaVault/App/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.luminavault.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		C01000012900000100000001 /* Build configuration list for PBXNativeTarget "LuminaVault" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C01000052900000100000001 /* Debug */,
+				C01000062900000100000001 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C01000022900000100000001 /* Build configuration list for PBXProject "LuminaVault" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C01000032900000100000001 /* Debug */,
+				C01000042900000100000001 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+	};
+	rootObject = 001000012900000100000001 /* Project object */;
+}
