@@ -1,4 +1,4 @@
-name: Build & Package LuminaVault IPA
+name: Build & Package LuminaVault
 
 on:
   push:
@@ -8,47 +8,54 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-ipa:
-    name: Build LuminaVault IPA & App
-    runs-on: macos-latest
+  build-ios:
+    name: Build LuminaVault iOS App & Package
+    runs-on: macos-15
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Show Compiler & Schemes
+      - name: Show Xcode Version & Schemes
         run: |
           xcodebuild -version
           xcodebuild -list -project LuminaVault.xcodeproj
 
-      - name: Compile Native iOS Application
+      - name: Build Application for iOS Simulator
         run: |
-          xcodebuild \
+          mkdir -p build/Release-iphonesimulator
+          xcodebuild build \
             -project LuminaVault.xcodeproj \
             -scheme LuminaVault \
+            -destination "generic/platform=iOS Simulator" \
             -configuration Release \
-            -destination 'generic/platform=iOS' \
-            -derivedDataPath build/DerivedData \
             CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
-            CODE_SIGN_STYLE=Manual \
-            build
+            CODE_SIGNING_REQUIRED=NO \
+            CONFIGURATION_BUILD_DIR="$(pwd)/build/Release-iphonesimulator"
 
-      - name: Package into IPA
+      - name: Package App Bundle & IPA
         run: |
           mkdir -p build/Payload
-          APP_PATH=$(find build/DerivedData -name "LuminaVault.app" -type d | head -n 1)
-          echo "Found compiled app at: $APP_PATH"
-          cp -r "$APP_PATH" build/Payload/
+          cd build/Release-iphonesimulator
+          zip -r -X ../../LuminaVault-iOS-Simulator-App.zip LuminaVault.app
+          cd ../..
+          cp -r build/Release-iphonesimulator/LuminaVault.app build/Payload/
           cd build
           zip -r LuminaVault.ipa Payload
-          echo "✅ LuminaVault.ipa generated successfully!"
-          ls -lh LuminaVault.ipa
+          cd ..
+          ls -lh LuminaVault-iOS-Simulator-App.zip build/LuminaVault.ipa
+
+      - name: Upload Built App Bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: LuminaVault-iOS-App
+          path: LuminaVault-iOS-Simulator-App.zip
+          retention-days: 14
 
       - name: Upload IPA Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: LuminaVault-ipa
+          name: LuminaVault-IPA
           path: build/LuminaVault.ipa
           retention-days: 14
