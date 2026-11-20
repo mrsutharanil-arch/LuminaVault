@@ -23,6 +23,7 @@ jobs:
 
       - name: Build Application for iOS Simulator
         run: |
+          set -o pipefail
           mkdir -p build/Release-iphonesimulator
           xcodebuild build \
             -project LuminaVault.xcodeproj \
@@ -32,7 +33,15 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
-            CONFIGURATION_BUILD_DIR="$(pwd)/build/Release-iphonesimulator"
+            CONFIGURATION_BUILD_DIR="$(pwd)/build/Release-iphonesimulator" 2>&1 | tee build.log
+
+      - name: Diagnostic on Build Failure
+        if: failure()
+        run: |
+          echo "=== RECENT BUILD LOG OUTPUT ==="
+          tail -n 120 build.log || true
+          echo "=== DETECTED COMPILATION ERRORS ==="
+          grep -E "error:" build.log || true
 
       - name: Package App Bundle & IPA
         run: |

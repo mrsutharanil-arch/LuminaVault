@@ -75,25 +75,25 @@
 		F01000142900000100000001 /* MediaThumbnailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaThumbnailView.swift; sourceTree = "<group>"; };
 		F01000152900000100000001 /* CircularProgressBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularProgressBar.swift; sourceTree = "<group>"; };
 		F01000162900000100000001 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
-		F01000172900000100000001 /* FilterSegmentBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterSegmentBar.swift; sourceTree = "<group>"; };
-		F01000182900000100000001 /* GalleryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryView.swift; sourceTree = "<group>"; };
-		F01000192900000100000001 /* MediaDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaDetailView.swift; sourceTree = "<group>"; };
-		F010001A2900000100000001 /* SmartGroupsHubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartGroupsHubView.swift; sourceTree = "<group>"; };
-		F010001B2900000100000001 /* DocumentScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentScannerView.swift; sourceTree = "<group>"; };
-		F010001C2900000100000001 /* FaceAreaGroupingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaceAreaGroupingView.swift; sourceTree = "<group>"; };
-		F010001D2900000100000001 /* LocationGroupingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationGroupingView.swift; sourceTree = "<group>"; };
-		F010001E2900000100000001 /* ScreenshotManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotManagerView.swift; sourceTree = "<group>"; };
-		F010001F2900000100000001 /* ShortPhotosView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortPhotosView.swift; sourceTree = "<group>"; };
-		F01000202900000100000001 /* FileManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileManagerView.swift; sourceTree = "<group>"; };
-		F01000212900000100000001 /* ExifDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExifDetailSheet.swift; sourceTree = "<group>"; };
-		F01000222900000100000001 /* GooglePhotosBackupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GooglePhotosBackupView.swift; sourceTree = "<group>"; };
-		F01000232900000100000001 /* BackupSettingsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupSettingsSheet.swift; sourceTree = "<group>"; };
-		F01000242900000100000001 /* VaultContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultContainerView.swift; sourceTree = "<group>"; };
-		F01000252900000100000001 /* VaultGalleryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultGalleryView.swift; sourceTree = "<group>"; };
-		F01000262900000100000001 /* VaultLockScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultLockScreenView.swift; sourceTree = "<group>"; };
-		F01000272900000100000001 /* VaultSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultSettingsView.swift; sourceTree = "<group>"; };
+		F01000172900000100000001 /* FilterSegmentBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Gallery/FilterSegmentBar.swift"; sourceTree = "<group>"; };
+		F01000182900000100000001 /* GalleryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Gallery/GalleryView.swift"; sourceTree = "<group>"; };
+		F01000192900000100000001 /* MediaDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Gallery/MediaDetailView.swift"; sourceTree = "<group>"; };
+		F010001A2900000100000001 /* SmartGroupsHubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SmartGroups/SmartGroupsHubView.swift"; sourceTree = "<group>"; };
+		F010001B2900000100000001 /* DocumentScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SmartGroups/DocumentScannerView.swift"; sourceTree = "<group>"; };
+		F010001C2900000100000001 /* FaceAreaGroupingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SmartGroups/FaceAreaGroupingView.swift"; sourceTree = "<group>"; };
+		F010001D2900000100000001 /* LocationGroupingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SmartGroups/LocationGroupingView.swift"; sourceTree = "<group>"; };
+		F010001E2900000100000001 /* ScreenshotManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SmartGroups/ScreenshotManagerView.swift"; sourceTree = "<group>"; };
+		F010001F2900000100000001 /* ShortPhotosView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SmartGroups/ShortPhotosView.swift"; sourceTree = "<group>"; };
+		F01000202900000100000001 /* FileManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FileManager/FileManagerView.swift"; sourceTree = "<group>"; };
+		F01000212900000100000001 /* ExifDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FileManager/ExifDetailSheet.swift"; sourceTree = "<group>"; };
+		F01000222900000100000001 /* GooglePhotosBackupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Backup/GooglePhotosBackupView.swift"; sourceTree = "<group>"; };
+		F01000232900000100000001 /* BackupSettingsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Backup/BackupSettingsSheet.swift"; sourceTree = "<group>"; };
+		F01000242900000100000001 /* VaultContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Vault/VaultContainerView.swift"; sourceTree = "<group>"; };
+		F01000252900000100000001 /* VaultGalleryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Vault/VaultGalleryView.swift"; sourceTree = "<group>"; };
+		F01000262900000100000001 /* VaultLockScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Vault/VaultLockScreenView.swift"; sourceTree = "<group>"; };
+		F01000272900000100000001 /* VaultSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Vault/VaultSettingsView.swift"; sourceTree = "<group>"; };
 		F01000282900000100000001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		F01000292900000100000001 /* WindowsPhoneMetroView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowsPhoneMetroView.swift; sourceTree = "<group>"; };
+		F01000292900000100000001 /* WindowsPhoneMetroView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Metro/WindowsPhoneMetroView.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */

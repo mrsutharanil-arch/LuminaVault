@@ -14,7 +14,7 @@ targets:
     sources:
       - path: LuminaVault
         excludes:
-          - "Info.plist"
+          - "App/Info.plist"
     info:
       path: LuminaVault/App/Info.plist
       properties:
