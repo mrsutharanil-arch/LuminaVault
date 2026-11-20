@@ -1,0 +1,18 @@
+workflows:
+  ios-luminavault:
+    name: Build LuminaVault IPA
+    max_build_duration: 30
+    instance_type: mac_mini_m2
+    environment:
+      xcode: latest
+    scripts:
+      - name: Show Xcode & Scheme
+        script: |
+          xcodebuild -version
+          xcodebuild -list -project LuminaVault.xcodeproj
+      - name: Build & Package IPA
+        script: |
+          chmod +x package_ipa.sh
+          ./package_ipa.sh
+    artifacts:
+      - build/LuminaVault.ipa
