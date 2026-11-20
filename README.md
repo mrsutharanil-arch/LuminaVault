@@ -1,5 +1,7 @@
 # LuminaVault - iPhone 14 Photo & Video Manager
 
+[![Build & Package LuminaVault](https://github.com/mrsutharanil-arch/Luminavault/actions/workflows/ios-build.yml/badge.svg)](https://github.com/mrsutharanil-arch/Luminavault/actions/workflows/ios-build.yml)
+
 A high-performance **iOS 16+ / iPhone 14 Photo & Video Management Application** built natively in **SwiftUI** with **Google Photos Cloud Backup**, on-device **Apple Vision AI Smart Grouping** (Documents, Face Areas, Geographic Areas, Screenshots, Short Photos), full phone **File Manager**, and an AES-256 encrypted **Private Vault** with **Face ID** authentication.
 
 ---
