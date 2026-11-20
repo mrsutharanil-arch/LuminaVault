@@ -60,7 +60,7 @@ public struct MainTabView: View {
                 .tabItem {
                     Label(MainTab.cloudBackup.title, systemImage: MainTab.cloudBackup.icon)
                 }
-                .badge(googleService.isBackingUp ? "Syncing" : nil)
+                .badge(googleService.isBackingUp ? Text("Sync") : nil)
                 .tag(MainTab.cloudBackup)
             
             VaultContainerView()

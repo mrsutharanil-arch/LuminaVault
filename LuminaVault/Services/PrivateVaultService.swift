@@ -61,18 +61,16 @@ public class PrivateVaultService: ObservableObject {
             return true
         }
         
-        do {
-            let reason = "Unlock Private Vault to view protected photos & videos"
-            let success = try await context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason)
-            
-            self.isUnlocked = success
-            self.isAuthenticating = false
-            return success
-        } catch {
-            self.authenticationError = error.localizedDescription
-            self.isAuthenticating = false
-            return false
+        let reason = "Unlock Private Vault to view protected photos & videos"
+        let success: Bool = await withCheckedContinuation { continuation in
+            context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { result, authError in
+                continuation.resume(returning: result)
+            }
         }
+        
+        self.isUnlocked = success
+        self.isAuthenticating = false
+        return success
     }
     
     public func unlockWithPasscode(pin: String) -> Bool {
@@ -124,8 +122,12 @@ public class PrivateVaultService: ObservableObject {
             if deleteOriginal, let localId = item.phAssetLocalId {
                 let assets = PHAsset.fetchAssets(withLocalIdentifiers: [localId], options: nil)
                 if let asset = assets.firstObject {
-                    try? await PHPhotoLibrary.shared().performChanges {
-                        PHAssetChangeRequest.deleteAssets([asset] as NSArray)
+                    await withCheckedContinuation { continuation in
+                        PHPhotoLibrary.shared().performChanges({
+                            PHAssetChangeRequest.deleteAssets([asset] as NSArray)
+                        }, completionHandler: { _, _ in
+                            continuation.resume()
+                        })
                     }
                 }
             }

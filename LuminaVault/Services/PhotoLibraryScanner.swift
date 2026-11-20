@@ -41,7 +41,11 @@ public class PhotoLibraryScanner: NSObject, ObservableObject, PHPhotoLibraryChan
     }
     
     public func requestPermission() async -> Bool {
-        let status = await PHPhotoLibrary.requestAuthorization(for: .readWrite)
+        let status = await withCheckedContinuation { continuation in
+            PHPhotoLibrary.requestAuthorization(for: .readWrite) { newStatus in
+                continuation.resume(returning: newStatus)
+            }
+        }
         self.authorizationStatus = status
         if status == .authorized || status == .limited {
             PHPhotoLibrary.shared().register(self)

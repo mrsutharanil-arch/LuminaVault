@@ -43,7 +43,7 @@ public struct DynamicIslandBanner: View {
             Image(systemName: icon)
                 .font(.system(size: 16, weight: .bold))
                 .foregroundColor(.cyan)
-                .symbolEffect(.pulse, isActive: isPulse)
+                .opacity(isPulse ? 0.9 : 1.0)
             
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
