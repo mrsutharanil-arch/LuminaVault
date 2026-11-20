@@ -21,19 +21,21 @@ jobs:
           xcodebuild -version
           xcodebuild -list -project LuminaVault.xcodeproj
 
-      - name: Build Application for iOS Simulator
+      - name: Build Native ARM64 iOS App (Physical Device)
         run: |
           set -o pipefail
-          mkdir -p build/Release-iphonesimulator
-          xcodebuild build \
+          mkdir -p build
+          xcodebuild archive \
             -project LuminaVault.xcodeproj \
             -scheme LuminaVault \
-            -destination "generic/platform=iOS Simulator" \
             -configuration Release \
+            -destination "generic/platform=iOS" \
+            -archivePath "$RUNNER_TEMP/LuminaVault.xcarchive" \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
-            CONFIGURATION_BUILD_DIR="$(pwd)/build/Release-iphonesimulator" 2>&1 | tee build.log
+            VALIDATE_PRODUCT=NO \
+            PROVISIONING_PROFILE_SPECIFIER="" 2>&1 | tee build.log
 
       - name: Diagnostic on Build Failure
         if: failure()
@@ -43,24 +45,19 @@ jobs:
           echo "=== DETECTED COMPILATION ERRORS ==="
           grep -E "error:" build.log || true
 
-      - name: Package App Bundle & IPA
+      - name: Package Native ARM64 iOS IPA
         run: |
           mkdir -p build/Payload
-          cd build/Release-iphonesimulator
-          zip -r -X ../../LuminaVault-iOS-Simulator-App.zip LuminaVault.app
-          cd ../..
-          cp -r build/Release-iphonesimulator/LuminaVault.app build/Payload/
-          cd build
-          zip -r LuminaVault.ipa Payload
-          cd ..
-          ls -lh LuminaVault-iOS-Simulator-App.zip build/LuminaVault.ipa
+          cp -r "$RUNNER_TEMP/LuminaVault.xcarchive/Products/Applications/LuminaVault.app" build/Payload/
 
-      - name: Upload Built App Bundle
-        uses: actions/upload-artifact@v4
-        with:
-          name: LuminaVault-iOS-App
-          path: LuminaVault-iOS-Simulator-App.zip
-          retention-days: 14
+          echo "=== Binary & Info.plist Inspection ==="
+          plutil -p build/Payload/LuminaVault.app/Info.plist | grep -E "CFBundleSupportedPlatforms|DTPlatformName|UIDeviceFamily|UIRequiredDeviceCapabilities" || true
+          file build/Payload/LuminaVault.app/LuminaVault || true
+
+          cd build
+          zip -r -X LuminaVault.ipa Payload
+          cd ..
+          ls -lh build/LuminaVault.ipa
 
       - name: Upload IPA Artifact
         uses: actions/upload-artifact@v4
@@ -68,3 +65,10 @@ jobs:
           name: LuminaVault-IPA
           path: build/LuminaVault.ipa
           retention-days: 14
+
+      - name: Upload xcarchive (Full Native Archive)
+        uses: actions/upload-artifact@v4
+        with:
+          name: LuminaVault-xcarchive
+          path: ${{ runner.temp }}/LuminaVault.xcarchive
+          retention-days: 7
