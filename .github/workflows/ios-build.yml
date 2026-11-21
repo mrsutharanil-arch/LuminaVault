@@ -7,6 +7,9 @@ on:
     branches: [ main, master ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build-ios:
     name: Build LuminaVault iOS App & Package
@@ -44,6 +47,13 @@ jobs:
           tail -n 120 build.log || true
           echo "=== DETECTED COMPILATION ERRORS ==="
           grep -E "error:" build.log || true
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git branch -D ci-debug-log 2>/dev/null || true
+          git checkout -b ci-debug-log
+          git add -f build.log
+          git commit -m "chore: upload build log" || true
+          git push origin ci-debug-log --force || true
 
       - name: Upload Build Log on Failure
         if: failure()

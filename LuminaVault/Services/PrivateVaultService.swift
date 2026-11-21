@@ -115,14 +115,20 @@ public class PrivateVaultService: ObservableObject {
         if let localId = item.phAssetLocalId {
             // Fetch real raw media bytes
             rawDataToEncrypt = await withCheckedContinuation { continuation in
+                var hasResumed = false
                 PhotoAssetLoader.shared.loadOriginalData(for: localId) { data, _ in
+                    guard !hasResumed else { return }
+                    hasResumed = true
                     continuation.resume(returning: data)
                 }
             }
             
             // Generate real thumbnail
             let thumbImage: UIImage? = await withCheckedContinuation { continuation in
+                var hasResumed = false
                 PhotoAssetLoader.shared.loadThumbnail(for: localId, targetSize: CGSize(width: 300, height: 300)) { img in
+                    guard !hasResumed else { return }
+                    hasResumed = true
                     continuation.resume(returning: img)
                 }
             }

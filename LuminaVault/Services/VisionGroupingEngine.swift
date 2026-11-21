@@ -37,7 +37,10 @@ public class VisionGroupingEngine: ObservableObject {
                 if let localId = item.phAssetLocalId {
                     // Load image for Vision processing
                     let image: UIImage? = await withCheckedContinuation { continuation in
+                        var hasResumed = false
                         PhotoAssetLoader.shared.loadThumbnail(for: localId, targetSize: CGSize(width: 600, height: 600)) { img in
+                            guard !hasResumed else { return }
+                            hasResumed = true
                             continuation.resume(returning: img)
                         }
                     }
