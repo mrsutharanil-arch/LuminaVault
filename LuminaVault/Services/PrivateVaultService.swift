@@ -221,12 +221,12 @@ public class PrivateVaultService: ObservableObject {
                 if vaultItem.mediaType == .video {
                     let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(vaultItem.originalFilename)
                     try? decryptedData.write(to: tempURL)
-                    let creationReq = PHAssetCreationRequest.creationRequestForAsset()
+                    let creationReq = PHAssetCreationRequest.forAsset()
                     creationReq.addResource(with: .video, fileURL: tempURL, options: nil)
                 } else if let image = UIImage(data: decryptedData) {
                     PHAssetChangeRequest.creationRequestForAsset(from: image)
                 } else {
-                    let creationReq = PHAssetCreationRequest.creationRequestForAsset()
+                    let creationReq = PHAssetCreationRequest.forAsset()
                     creationReq.addResource(with: .photo, data: decryptedData, options: nil)
                 }
             }) { saved, _ in

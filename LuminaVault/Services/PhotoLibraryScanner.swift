@@ -382,7 +382,7 @@ public class PhotoLibraryScanner: NSObject, ObservableObject, PHPhotoLibraryChan
         self.faces = allMediaItems.filter { $0.isFaceGroup }
     }
     
-    public func photoLibraryDidChange(_ changeInstance: PHChange) {
+    nonisolated public func photoLibraryDidChange(_ changeInstance: PHChange) {
         Task { @MainActor in
             await startFullLibraryScan()
         }

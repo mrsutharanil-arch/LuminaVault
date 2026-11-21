@@ -405,7 +405,7 @@ public struct WindowsPhoneMetroView: View {
                                         .foregroundColor(themeColor.color)
                                 }
                                 Spacer()
-                                Text(fileManagerService.storageBreakdown.formattedPhotosBytes)
+                                Text(fileManagerService.storageBreakdown.formattedPhotosTotal)
                                     .font(.system(size: 20, weight: .light))
                                     .foregroundColor(.white)
                                 Text("media storage")
