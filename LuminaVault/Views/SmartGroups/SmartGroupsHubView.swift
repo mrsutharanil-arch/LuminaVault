@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 public struct SmartGroupsHubView: View {
     @StateObject private var viewModel = SmartGroupingViewModel()

@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 public struct GalleryView: View {
     @StateObject private var viewModel = GalleryViewModel()

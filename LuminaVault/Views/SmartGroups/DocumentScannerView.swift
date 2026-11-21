@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 public struct DocumentScannerView: View {
     @ObservedObject public var viewModel: SmartGroupingViewModel

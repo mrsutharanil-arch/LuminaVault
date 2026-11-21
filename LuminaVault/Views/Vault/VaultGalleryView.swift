@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 public struct VaultGalleryView: View {
     @ObservedObject public var viewModel: VaultViewModel
