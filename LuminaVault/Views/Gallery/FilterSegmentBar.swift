@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 public struct FilterSegmentBar: View {
     @Binding public var selectedSegment: GalleryFilterSegment

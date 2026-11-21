@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 public struct GlassCard<Content: View>: View {
     public let cornerRadius: CGFloat

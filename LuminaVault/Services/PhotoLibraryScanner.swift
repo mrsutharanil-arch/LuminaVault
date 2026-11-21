@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 import Photos
 import PhotosUI
 import SwiftUI
@@ -8,7 +9,7 @@ import AVFoundation
 // MARK: - High-Performance Photo & Video Asset Loader
 public class PhotoAssetLoader {
     public static let shared = PhotoAssetLoader()
-    private let imageManager = PHCachingImageManager.default()
+    private let imageManager = PHCachingImageManager()
     private let thumbnailCache = NSCache<NSString, UIImage>()
     
     public init() {

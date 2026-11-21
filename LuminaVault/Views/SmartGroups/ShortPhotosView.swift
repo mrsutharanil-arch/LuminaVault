@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 public struct ShortPhotosView: View {
     @ObservedObject public var viewModel: SmartGroupingViewModel
