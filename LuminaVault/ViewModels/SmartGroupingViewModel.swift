@@ -6,6 +6,7 @@ import Combine
 public class SmartGroupingViewModel: ObservableObject {
     @Published public var selectedGroup: SmartGroupType? = nil
     @Published public var isAnalyzingVision: Bool = false
+    @Published public var videos: [MediaItem] = []
     @Published public var documents: [MediaItem] = []
     @Published public var faces: [MediaItem] = []
     @Published public var areaClusters: [GroupedCollection] = []
@@ -20,10 +21,20 @@ public class SmartGroupingViewModel: ObservableObject {
     
     public init() {
         refreshGroups()
+        
+        PhotoLibraryScanner.shared.objectWillChange
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.refreshGroups()
+            }
+            .store(in: &cancellables)
     }
     
     public func refreshGroups() {
         let allItems = PhotoLibraryScanner.shared.allMediaItems
+        
+        // 0. Videos
+        self.videos = allItems.filter { $0.mediaType == .video }
         
         // 1. Documents
         self.documents = allItems.filter { $0.isDocument }
@@ -53,6 +64,9 @@ public class SmartGroupingViewModel: ObservableObject {
                 }
             }
         }
+        if names.isEmpty && !faces.isEmpty {
+            return ["Portraits & Faces"]
+        }
         return Array(names).sorted()
     }
     
@@ -72,7 +86,7 @@ public class SmartGroupingViewModel: ObservableObject {
             return faces
         }
         return faces.filter { item in
-            item.detectedFaces.contains { $0.personTag == selectedPerson }
+            item.detectedFaces.contains { $0.personTag == selectedPerson } || selectedPerson == "Portraits & Faces"
         }
     }
     
@@ -84,10 +98,10 @@ public class SmartGroupingViewModel: ObservableObject {
     }
     
     public func deleteOldScreenshots() {
-        // Remove screenshots older than 7 days
         let oneWeekAgo = Calendar.current.date(byAdding: .day, value: -7, to: Date())!
         let oldIds = Set(screenshots.filter { $0.creationDate < oneWeekAgo }.map { $0.id })
         PhotoLibraryScanner.shared.allMediaItems.removeAll { oldIds.contains($0.id) }
+        PhotoLibraryScanner.shared.updateCategorizedCaches()
         refreshGroups()
     }
 }

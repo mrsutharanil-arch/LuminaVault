@@ -36,31 +36,49 @@ public struct ScreenshotManagerView: View {
                             Spacer()
                         }
                         
-                        Button(action: {
-                            showCleanAlert = true
-                        }) {
-                            HStack {
-                                Image(systemName: "trash.fill")
-                                Text("Clean Screenshots > 7 Days")
+                        if !viewModel.screenshots.isEmpty {
+                            Button(action: {
+                                showCleanAlert = true
+                            }) {
+                                HStack {
+                                    Image(systemName: "trash.fill")
+                                    Text("Clean Screenshots > 7 Days")
+                                }
+                                .font(.caption.bold())
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 9)
+                                .background(Color.cyan)
+                                .foregroundColor(.black)
+                                .cornerRadius(10)
                             }
-                            .font(.caption.bold())
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 9)
-                            .background(Color.cyan)
-                            .foregroundColor(.black)
-                            .cornerRadius(10)
                         }
                     }
                 }
                 .padding(.horizontal)
                 
-                // Grid of Screenshots
-                LazyVGrid(columns: columns, spacing: 3) {
-                    ForEach(viewModel.screenshots) { item in
-                        MediaThumbnailView(item: item)
-                            .onTapGesture {
-                                selectedItem = item
-                            }
+                if viewModel.screenshots.isEmpty {
+                    VStack(spacing: 12) {
+                        Spacer().frame(height: 40)
+                        Image(systemName: "camera.metering.none")
+                            .font(.system(size: 44))
+                            .foregroundColor(.secondary)
+                        Text("No Screenshots Found")
+                            .font(.headline)
+                        Text("Screenshots and screen recordings taken on this iPhone will be grouped here.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 30)
+                    }
+                } else {
+                    // Grid of Screenshots
+                    LazyVGrid(columns: columns, spacing: 3) {
+                        ForEach(viewModel.screenshots) { item in
+                            MediaThumbnailView(item: item)
+                                .onTapGesture {
+                                    selectedItem = item
+                                }
+                        }
                     }
                 }
                 

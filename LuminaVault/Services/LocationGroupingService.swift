@@ -10,6 +10,7 @@ public class LocationGroupingService: ObservableObject {
     @Published public var isClustering: Bool = false
     
     private let geocoder = CLGeocoder()
+    private var geocodeCache: [String: String] = [:]
     
     public init() {}
     
@@ -18,14 +19,60 @@ public class LocationGroupingService: ObservableObject {
         
         var areaDict: [String: [MediaItem]] = [:]
         
+        // Group items by coordinate key (rounded to ~0.02 deg ~ 2km)
+        var coordinateGroups: [String: (CLLocation, [MediaItem])] = [:]
+        
         for item in items {
-            if let areaName = item.areaName {
-                areaDict[areaName, default: []].append(item)
-            } else if let locName = item.locationName {
+            if let locName = item.locationName, !locName.isEmpty {
                 areaDict[locName, default: []].append(item)
-            } else if item.coordinate != nil {
-                areaDict["GPS Tagged Places", default: []].append(item)
+            } else if let coord = item.coordinate {
+                let key = "\(String(format: "%.2f", coord.latitude)),\(String(format: "%.2f", coord.longitude))"
+                if let cachedName = geocodeCache[key] {
+                    areaDict[cachedName, default: []].append(item)
+                } else {
+                    if coordinateGroups[key] == nil {
+                        coordinateGroups[key] = (CLLocation(latitude: coord.latitude, longitude: coord.longitude), [item])
+                    } else {
+                        coordinateGroups[key]?.1.append(item)
+                    }
+                }
             }
+        }
+        
+        // Reverse-geocode unique location clusters (up to 12 clusters to prevent geocoder throttling)
+        let sortedCoordGroups = coordinateGroups.values.sorted { $0.1.count > $1.1.count }.prefix(12)
+        for (location, clusterItems) in sortedCoordGroups {
+            let key = "\(String(format: "%.2f", location.coordinate.latitude)),\(String(format: "%.2f", location.coordinate.longitude))"
+            var resolvedName: String? = nil
+            
+            do {
+                let placemarks = try await geocoder.reverseGeocodeLocation(location)
+                if let placemark = placemarks.first {
+                    var components: [String] = []
+                    if let locality = placemark.locality {
+                        components.append(locality)
+                    }
+                    if let adminArea = placemark.administrativeArea {
+                        components.append(adminArea)
+                    } else if let country = placemark.country {
+                        components.append(country)
+                    }
+                    
+                    if !components.isEmpty {
+                        resolvedName = components.joined(separator: ", ")
+                    }
+                }
+            } catch {
+                // Network or geocode limit
+                resolvedName = nil
+            }
+            
+            let finalName = resolvedName ?? "Area (\(key))"
+            geocodeCache[key] = finalName
+            areaDict[finalName, default: []].append(contentsOf: clusterItems)
+            
+            // Short yield between geocode calls
+            try? await Task.sleep(nanoseconds: 100_000_000)
         }
         
         var collections: [GroupedCollection] = []

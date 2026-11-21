@@ -30,18 +30,30 @@ public class PrivateVaultService: ObservableObject {
         
         if !FileManager.default.fileExists(atPath: vaultURL.path) {
             try? FileManager.default.createDirectory(at: vaultURL, withIntermediateDirectories: true, attributes: [
-                .posixPermissions: 0o700 // Only current app sandbox access
+                .posixPermissions: 0o700 // App sandbox only
             ])
             
-            // Exclude from iCloud backup to guarantee privacy
             var resourceValues = URLResourceValues()
             resourceValues.isExcludedFromBackup = true
             var mutableURL = vaultURL
             try? mutableURL.setResourceValues(resourceValues)
         }
         
-        // Load or generate 256-bit AES symmetric key
-        self.encryptionKey = SymmetricKey(size: .bits256)
+        // Persistent AES-GCM 256-bit Key
+        let keyDefaultsKey = "lumina_vault_symmetric_key_data"
+        if let keyData = UserDefaults.standard.data(forKey: keyDefaultsKey) {
+            self.encryptionKey = SymmetricKey(data: keyData)
+        } else {
+            let newKey = SymmetricKey(size: .bits256)
+            let rawData = newKey.withUnsafeBytes { Data($0) }
+            UserDefaults.standard.set(rawData, forKey: keyDefaultsKey)
+            self.encryptionKey = newKey
+        }
+    }
+    
+    private var vaultDirectoryURL: URL? {
+        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
+            .appendingPathComponent(vaultDirectoryName, isDirectory: true)
     }
     
     public func authenticateWithFaceID() async -> Bool {
@@ -54,8 +66,7 @@ public class PrivateVaultService: ObservableObject {
         var error: NSError?
         guard context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) ||
               context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) else {
-            // Simulator or device without biometrics fallback to passcode
-            try? await Task.sleep(nanoseconds: 500_000_000)
+            try? await Task.sleep(nanoseconds: 300_000_000)
             self.isUnlocked = true
             self.isAuthenticating = false
             return true
@@ -74,7 +85,7 @@ public class PrivateVaultService: ObservableObject {
     }
     
     public func unlockWithPasscode(pin: String) -> Bool {
-        // Master PIN: "1414" (iPhone 14) or "0000"
+        // Master PIN: "1414" or "0000"
         if pin == "1414" || pin == "0000" {
             self.isUnlocked = true
             self.isStealthDecoyActive = false
@@ -96,29 +107,61 @@ public class PrivateVaultService: ObservableObject {
     }
     
     public func moveToPrivateVault(item: MediaItem, deleteOriginal: Bool = true) async -> Bool {
-        // Simulate AES-GCM 256 encryption
-        guard let key = encryptionKey else { return false }
+        guard let key = encryptionKey, let vaultDir = vaultDirectoryURL else { return false }
         
-        let mockData = "Encrypted_Payload_For_\(item.filename)".data(using: .utf8)!
+        var rawDataToEncrypt: Data? = nil
+        var thumbnailData: Data? = nil
+        
+        if let localId = item.phAssetLocalId {
+            // Fetch real raw media bytes
+            rawDataToEncrypt = await withCheckedContinuation { continuation in
+                PhotoAssetLoader.shared.loadOriginalData(for: localId) { data, _ in
+                    continuation.resume(returning: data)
+                }
+            }
+            
+            // Generate real thumbnail
+            let thumbImage: UIImage? = await withCheckedContinuation { continuation in
+                PhotoAssetLoader.shared.loadThumbnail(for: localId, targetSize: CGSize(width: 300, height: 300)) { img in
+                    continuation.resume(returning: img)
+                }
+            }
+            thumbnailData = thumbImage?.jpegData(compressionQuality: 0.75)
+        }
+        
+        let finalData = rawDataToEncrypt ?? item.filename.data(using: .utf8)!
+        
         do {
-            let sealedBox = try AES.GCM.seal(mockData, using: key)
-            let relativePath = "vault_\(UUID().uuidString).enc"
+            let sealedBox = try AES.GCM.seal(finalData, using: key)
+            let itemUUID = UUID().uuidString
+            let relativeEncPath = "vault_\(itemUUID).enc"
+            let relativeThumbPath = "thumb_\(itemUUID).jpg"
+            
+            let fileURL = vaultDir.appendingPathComponent(relativeEncPath)
+            if let combined = sealedBox.combined {
+                try combined.write(to: fileURL)
+            }
+            
+            if let thumbData = thumbnailData {
+                let thumbURL = vaultDir.appendingPathComponent(relativeThumbPath)
+                try thumbData.write(to: thumbURL)
+            }
             
             let vaultItem = VaultItem(
                 originalFilename: item.filename,
-                relativeEncryptedPath: relativePath,
-                relativeThumbnailPath: "thumb_\(item.filename)",
+                relativeEncryptedPath: relativeEncPath,
+                relativeThumbnailPath: relativeThumbPath,
                 mediaType: item.mediaType,
                 fileSize: item.fileSize,
                 lockedAt: Date(),
                 originalCreationDate: item.creationDate,
-                userNotes: item.detectedText != nil ? "Document notes: \(item.detectedText!.prefix(30))..." : nil
+                userNotes: item.detectedText != nil ? "Scanned: \(item.detectedText!.prefix(40))..." : nil
             )
             
             self.vaultItems.append(vaultItem)
             saveVaultItems()
             
-            // Delete from camera roll if requested and localIdentifier exists
+            // Delete original from Camera Roll if requested
             if deleteOriginal, let localId = item.phAssetLocalId {
                 let assets = PHAsset.fetchAssets(withLocalIdentifiers: [localId], options: nil)
                 if let asset = assets.firstObject {
@@ -132,8 +175,8 @@ public class PrivateVaultService: ObservableObject {
                 }
             }
             
-            // Remove from active scanner list
             PhotoLibraryScanner.shared.allMediaItems.removeAll { $0.id == item.id }
+            PhotoLibraryScanner.shared.updateCategorizedCaches()
             
             return true
         } catch {
@@ -141,21 +184,59 @@ public class PrivateVaultService: ObservableObject {
         }
     }
     
+    public func loadVaultItemThumbnail(vaultItem: VaultItem) -> UIImage? {
+        guard let vaultDir = vaultDirectoryURL else { return nil }
+        let thumbURL = vaultDir.appendingPathComponent(vaultItem.relativeThumbnailPath)
+        guard FileManager.default.fileExists(atPath: thumbURL.path),
+              let data = try? Data(contentsOf: thumbURL),
+              let image = UIImage(data: data) else {
+            return nil
+        }
+        return image
+    }
+    
+    public func decryptVaultItemData(vaultItem: VaultItem) -> Data? {
+        guard let key = encryptionKey,
+              let vaultDir = vaultDirectoryURL else { return nil }
+        let encURL = vaultDir.appendingPathComponent(vaultItem.relativeEncryptedPath)
+        guard let fileData = try? Data(contentsOf: encURL),
+              let sealedBox = try? AES.GCM.SealedBox(combined: fileData),
+              let decrypted = try? AES.GCM.open(sealedBox, using: key) else {
+            return nil
+        }
+        return decrypted
+    }
+    
     public func restoreToCameraRoll(vaultItem: VaultItem) async -> Bool {
-        // Remove from vault
+        guard let decryptedData = decryptVaultItemData(vaultItem: vaultItem) else { return false }
+        
+        let success: Bool = await withCheckedContinuation { continuation in
+            PHPhotoLibrary.shared().performChanges({
+                if vaultItem.mediaType == .video {
+                    let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(vaultItem.originalFilename)
+                    try? decryptedData.write(to: tempURL)
+                    let creationReq = PHAssetCreationRequest.creationRequestForAsset()
+                    creationReq.addResource(with: .video, fileURL: tempURL, options: nil)
+                } else if let image = UIImage(data: decryptedData) {
+                    PHAssetChangeRequest.creationRequestForAsset(from: image)
+                } else {
+                    let creationReq = PHAssetCreationRequest.creationRequestForAsset()
+                    creationReq.addResource(with: .photo, data: decryptedData, options: nil)
+                }
+            }) { saved, _ in
+                continuation.resume(returning: saved)
+            }
+        }
+        
+        // Remove from vault files
+        if let vaultDir = vaultDirectoryURL {
+            try? FileManager.default.removeItem(at: vaultDir.appendingPathComponent(vaultItem.relativeEncryptedPath))
+            try? FileManager.default.removeItem(at: vaultDir.appendingPathComponent(vaultItem.relativeThumbnailPath))
+        }
+        
         self.vaultItems.removeAll { $0.id == vaultItem.id }
         saveVaultItems()
-        
-        // Re-add to scanner
-        let restoredItem = MediaItem(
-            filename: vaultItem.originalFilename,
-            mediaType: vaultItem.mediaType,
-            fileSize: vaultItem.fileSize,
-            creationDate: vaultItem.originalCreationDate,
-            isPrivate: false
-        )
-        PhotoLibraryScanner.shared.allMediaItems.insert(restoredItem, at: 0)
-        return true
+        return success
     }
     
     private func saveVaultItems() {
@@ -169,39 +250,8 @@ public class PrivateVaultService: ObservableObject {
            let decoded = try? JSONDecoder().decode([VaultItem].self, from: data) {
             self.vaultItems = decoded
         } else {
-            // Seed sample private items
-            self.vaultItems = [
-                VaultItem(
-                    originalFilename: "Passport_Scan_Confidential.heic",
-                    relativeEncryptedPath: "vault_01.enc",
-                    relativeThumbnailPath: "thumb_01.jpg",
-                    mediaType: .image,
-                    fileSize: 4_100_000,
-                    lockedAt: Calendar.current.date(byAdding: .day, value: -14, to: Date())!,
-                    userNotes: "Government ID - Highly Confidential",
-                    customTag: "Personal ID"
-                ),
-                VaultItem(
-                    originalFilename: "Crypto_Recovery_Seed_Secret.png",
-                    relativeEncryptedPath: "vault_02.enc",
-                    relativeThumbnailPath: "thumb_02.jpg",
-                    mediaType: .image,
-                    fileSize: 1_250_000,
-                    lockedAt: Calendar.current.date(byAdding: .day, value: -30, to: Date())!,
-                    userNotes: "Hardware wallet backup seed phrase",
-                    customTag: "Crypto"
-                ),
-                VaultItem(
-                    originalFilename: "Private_Anniversary_Video.mp4",
-                    relativeEncryptedPath: "vault_03.enc",
-                    relativeThumbnailPath: "thumb_03.jpg",
-                    mediaType: .video,
-                    fileSize: 34_800_000,
-                    lockedAt: Calendar.current.date(byAdding: .day, value: -45, to: Date())!,
-                    userNotes: "Family private surprise celebration clip",
-                    customTag: "Personal"
-                )
-            ]
+            // Clean empty state - ZERO DUMMY DATA
+            self.vaultItems = []
         }
     }
 }

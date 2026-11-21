@@ -54,13 +54,13 @@ public struct VaultGalleryView: View {
                 .padding(.horizontal)
                 
                 if viewModel.vaultService.vaultItems.isEmpty {
-                    VStack(spacing: 12) {
+                    VStack(spacing: 14) {
                         Image(systemName: "lock.slash")
                             .font(.system(size: 44))
                             .foregroundColor(.secondary)
                         Text("Private Vault is Empty")
                             .font(.headline)
-                        Text("Select photos or documents in the main gallery and tap 'Lock Vault' to encrypt them here.")
+                        Text("Select photos or videos in the Photos gallery and tap 'Lock Vault' to encrypt them with AES-256.")
                             .font(.caption)
                             .foregroundColor(.secondary)
                             .multilineTextAlignment(.center)
@@ -68,22 +68,25 @@ public struct VaultGalleryView: View {
                     }
                     .padding(.top, 40)
                 } else {
-                    // Vault Items Grid
+                    // Vault Items Grid with real thumbnails
                     LazyVGrid(columns: columns, spacing: 3) {
                         ForEach(viewModel.vaultService.vaultItems) { item in
                             ZStack(alignment: .bottomLeading) {
-                                RoundedRectangle(cornerRadius: 10)
-                                    .fill(LinearGradient(colors: [Color.yellow.opacity(0.3), Color.black.opacity(0.8)], startPoint: .topLeading, endPoint: .bottomTrailing))
-                                    .aspectRatio(1, contentMode: .fit)
-                                    .overlay(
-                                        VStack {
-                                            Spacer()
+                                if let thumb = viewModel.vaultService.loadVaultItemThumbnail(vaultItem: item) {
+                                    Image(uiImage: thumb)
+                                        .resizable()
+                                        .aspectRatio(1, contentMode: .fill)
+                                        .clipped()
+                                } else {
+                                    Rectangle()
+                                        .fill(Color(UIColor.secondarySystemBackground))
+                                        .aspectRatio(1, contentMode: .fit)
+                                        .overlay(
                                             Image(systemName: item.mediaType.iconName)
                                                 .font(.system(size: 26))
                                                 .foregroundColor(.yellow.opacity(0.9))
-                                            Spacer()
-                                        }
-                                    )
+                                        )
+                                }
                                 
                                 // Tag or Badge
                                 VStack(alignment: .leading) {
@@ -91,21 +94,31 @@ public struct VaultGalleryView: View {
                                         Image(systemName: "lock.fill")
                                             .font(.system(size: 10))
                                             .foregroundColor(.yellow)
+                                            .padding(4)
+                                            .background(Color.black.opacity(0.6))
+                                            .clipShape(Circle())
                                         Spacer()
                                     }
                                     Spacer()
                                     Text(item.originalFilename)
                                         .font(.system(size: 9, weight: .bold))
                                         .foregroundColor(.white)
+                                        .padding(.horizontal, 4)
+                                        .padding(.vertical, 2)
+                                        .background(Color.black.opacity(0.6))
+                                        .cornerRadius(3)
                                         .lineLimit(1)
                                 }
-                                .padding(6)
+                                .padding(4)
                             }
+                            .cornerRadius(8)
+                            .clipped()
                             .onTapGesture {
                                 selectedVaultItem = item
                             }
                         }
                     }
+                    .padding(.horizontal, 14)
                 }
                 
                 Spacer().frame(height: 80)
@@ -124,29 +137,44 @@ public struct VaultItemDetailSheet: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showDeleteConfirm: Bool = false
     @State private var showRestoreConfirm: Bool = false
+    @State private var decryptedImage: UIImage? = nil
     
     public var body: some View {
         NavigationView {
             VStack(spacing: 20) {
-                // Preview Canvas
+                // Decrypted Preview Canvas
                 ZStack {
                     RoundedRectangle(cornerRadius: 16)
                         .fill(Color.black)
                         .frame(height: 280)
                     
-                    VStack(spacing: 8) {
-                        Image(systemName: item.mediaType.iconName)
-                            .font(.system(size: 64))
-                            .foregroundColor(.yellow)
-                        Text(item.originalFilename)
-                            .font(.headline)
-                            .foregroundColor(.white)
-                        Text("256-bit AES-GCM Encrypted")
-                            .font(.caption)
-                            .foregroundColor(.yellow.opacity(0.8))
+                    if let image = decryptedImage {
+                        Image(uiImage: image)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(height: 280)
+                            .cornerRadius(14)
+                    } else if let thumb = viewModel.vaultService.loadVaultItemThumbnail(vaultItem: item) {
+                        Image(uiImage: thumb)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(height: 280)
+                            .cornerRadius(14)
+                    } else {
+                        VStack(spacing: 8) {
+                            Image(systemName: item.mediaType.iconName)
+                                .font(.system(size: 64))
+                                .foregroundColor(.yellow)
+                            Text(item.originalFilename)
+                                .font(.headline)
+                                .foregroundColor(.white)
+                            Text("256-bit AES-GCM Encrypted")
+                                .font(.caption)
+                                .foregroundColor(.yellow.opacity(0.8))
+                        }
                     }
                 }
-                .padding()
+                .padding(.horizontal)
                 
                 List {
                     Section(header: Text("Vault Details")) {
@@ -208,6 +236,14 @@ public struct VaultItemDetailSheet: View {
                     Button("Done") { dismiss() }
                 }
             }
+            .onAppear {
+                if item.mediaType == .image || item.mediaType == .livePhoto {
+                    if let data = viewModel.vaultService.decryptVaultItemData(vaultItem: item),
+                       let img = UIImage(data: data) {
+                        self.decryptedImage = img
+                    }
+                }
+            }
             .alert("Restore to Camera Roll?", isPresented: $showRestoreConfirm) {
                 Button("Restore", role: .cancel) {
                     Task {
@@ -216,7 +252,7 @@ public struct VaultItemDetailSheet: View {
                     }
                 }
             } message: {
-                Text("This file will be decrypted and returned to your regular iPhone photos.")
+                Text("This file will be decrypted and returned to your iPhone Photos camera roll.")
             }
             .alert("Permanently Delete?", isPresented: $showDeleteConfirm) {
                 Button("Delete", role: .destructive) {

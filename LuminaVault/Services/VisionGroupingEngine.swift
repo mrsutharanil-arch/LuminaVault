@@ -15,7 +15,7 @@ public class VisionGroupingEngine: ObservableObject {
     
     public init() {}
     
-    /// Analyzes an array of media items using on-device Apple Vision
+    /// Analyzes media items using on-device Apple Vision (OCR & Face Detection)
     public func analyzeItems(items: [MediaItem]) async {
         guard !isAnalyzing else { return }
         isAnalyzing = true
@@ -26,23 +26,51 @@ public class VisionGroupingEngine: ObservableObject {
         var peopleMap: [String: [MediaItem]] = [:]
         
         let total = items.count
+        guard total > 0 else {
+            self.isAnalyzing = false
+            return
+        }
+        
         for (index, var item) in items.enumerated() {
-            // Check if item has document attributes
-            if item.isDocument {
-                docs.append(item)
-            }
-            
-            // Check face attributes
-            if item.isFaceGroup {
-                faces.append(item)
-                for face in item.detectedFaces {
-                    let personName = face.personTag ?? "Unassigned Person"
-                    peopleMap[personName, default: []].append(item)
+            // Only process still images
+            if item.mediaType == .image || item.mediaType == .livePhoto {
+                if let localId = item.phAssetLocalId {
+                    // Load image for Vision processing
+                    let image: UIImage? = await withCheckedContinuation { continuation in
+                        PhotoAssetLoader.shared.loadThumbnail(for: localId, targetSize: CGSize(width: 600, height: 600)) { img in
+                            continuation.resume(returning: img)
+                        }
+                    }
+                    
+                    if let img = image {
+                        // 1. Text Recognition (OCR) for Documents / Receipts
+                        if let recognized = await recognizeText(in: img), recognized.count >= 15 {
+                            item.subtypes.insert(.document)
+                            item.detectedText = recognized
+                            docs.append(item)
+                        }
+                        
+                        // 2. Face Detection for People / Portraits
+                        let detectedFaces = await detectFaces(in: img)
+                        if !detectedFaces.isEmpty {
+                            item.subtypes.insert(.face)
+                            item.detectedFaces = detectedFaces
+                            faces.append(item)
+                            
+                            let personName = detectedFaces.first?.personTag ?? (detectedFaces.count > 1 ? "Group (\(detectedFaces.count) People)" : "Portraits")
+                            peopleMap[personName, default: []].append(item)
+                        }
+                        
+                        // Update in scanner master list if altered
+                        if let masterIdx = PhotoLibraryScanner.shared.allMediaItems.firstIndex(where: { $0.id == item.id }) {
+                            PhotoLibraryScanner.shared.allMediaItems[masterIdx] = item
+                        }
+                    }
                 }
             }
             
-            self.analysisProgress = Double(index + 1) / Double(max(1, total))
-            if index % 5 == 0 {
+            self.analysisProgress = Double(index + 1) / Double(total)
+            if index % 4 == 0 {
                 await Task.yield()
             }
         }
@@ -50,6 +78,7 @@ public class VisionGroupingEngine: ObservableObject {
         self.documentItems = docs
         self.faceItems = faces
         self.namedPeopleClusters = peopleMap
+        PhotoLibraryScanner.shared.updateCategorizedCaches()
         self.isAnalyzing = false
     }
     
@@ -69,7 +98,7 @@ public class VisionGroupingEngine: ObservableObject {
                     observation.topCandidates(1).first?.string
                 }.joined(separator: "\n")
                 
-                continuation.resume(returning: text.isEmpty ? nil : text)
+                continuation.resume(returning: text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : text)
             }
             
             request.recognitionLevel = .accurate

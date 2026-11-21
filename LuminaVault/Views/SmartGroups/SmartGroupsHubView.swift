@@ -45,9 +45,18 @@ public struct SmartGroupsHubView: View {
                     .cornerRadius(16)
                     .padding(.horizontal)
                     
-                    // 5 Smart Group Cards
+                    // 6 Smart Group Cards
                     VStack(spacing: 14) {
-                        // 1. Documents
+                        // 1. Videos & 4K Clips
+                        NavigationLink(destination: VideosGroupView(viewModel: viewModel)) {
+                            SmartGroupCardView(
+                                groupType: .videos,
+                                count: viewModel.videos.count,
+                                coverGradient: [Color.blue, Color.purple]
+                            )
+                        }
+                        
+                        // 2. Documents
                         NavigationLink(destination: DocumentScannerView(viewModel: viewModel)) {
                             SmartGroupCardView(
                                 groupType: .documents,
@@ -56,7 +65,7 @@ public struct SmartGroupsHubView: View {
                             )
                         }
                         
-                        // 2. Face Areas & People
+                        // 3. Face Areas & People
                         NavigationLink(destination: FaceAreaGroupingView(viewModel: viewModel)) {
                             SmartGroupCardView(
                                 groupType: .faces,
@@ -65,7 +74,7 @@ public struct SmartGroupsHubView: View {
                             )
                         }
                         
-                        // 3. Area & Locations
+                        // 4. Area & Locations
                         NavigationLink(destination: LocationGroupingView(viewModel: viewModel)) {
                             SmartGroupCardView(
                                 groupType: .areas,
@@ -74,7 +83,7 @@ public struct SmartGroupsHubView: View {
                             )
                         }
                         
-                        // 4. Screenshots & Clips
+                        // 5. Screenshots & Clips
                         NavigationLink(destination: ScreenshotManagerView(viewModel: viewModel)) {
                             SmartGroupCardView(
                                 groupType: .screenshots,
@@ -83,7 +92,7 @@ public struct SmartGroupsHubView: View {
                             )
                         }
                         
-                        // 5. Short Photos & Live
+                        // 6. Short Photos & Live
                         NavigationLink(destination: ShortPhotosView(viewModel: viewModel)) {
                             SmartGroupCardView(
                                 groupType: .shortPhotos,
@@ -102,6 +111,74 @@ public struct SmartGroupsHubView: View {
             .onAppear {
                 viewModel.refreshGroups()
             }
+        }
+    }
+}
+
+public struct VideosGroupView: View {
+    @ObservedObject public var viewModel: SmartGroupingViewModel
+    @State private var selectedItem: MediaItem? = nil
+    
+    private let columns = [
+        GridItem(.flexible(), spacing: 3),
+        GridItem(.flexible(), spacing: 3)
+    ]
+    
+    public var body: some View {
+        ScrollView {
+            VStack(spacing: 16) {
+                GlassCard {
+                    HStack(spacing: 16) {
+                        Image(systemName: "video.fill")
+                            .font(.system(size: 34))
+                            .foregroundColor(.blue)
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("iPhone Videos Collection")
+                                .font(.headline)
+                            Text("\(viewModel.videos.count) videos • Total: \(ByteCountFormatter.string(fromByteCount: viewModel.videos.reduce(0) { $0 + $1.fileSize }, countStyle: .file))")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        Spacer()
+                    }
+                }
+                .padding(.horizontal)
+                
+                if viewModel.videos.isEmpty {
+                    VStack(spacing: 12) {
+                        Spacer().frame(height: 50)
+                        Image(systemName: "video.slash")
+                            .font(.system(size: 44))
+                            .foregroundColor(.secondary)
+                        Text("No Videos Found")
+                            .font(.headline)
+                        Text("No video recordings found in your camera roll.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                } else {
+                    LazyVGrid(columns: columns, spacing: 4) {
+                        ForEach(viewModel.videos) { video in
+                            MediaThumbnailView(item: video)
+                                .onTapGesture {
+                                    selectedItem = video
+                                }
+                        }
+                    }
+                    .padding(.horizontal, 4)
+                }
+                
+                Spacer().frame(height: 50)
+            }
+            .padding(.vertical)
+        }
+        .navigationTitle("Videos & 4K Clips")
+        .sheet(item: $selectedItem) { item in
+            MediaDetailView(item: Binding(
+                get: { item },
+                set: { selectedItem = $0 }
+            ))
         }
     }
 }

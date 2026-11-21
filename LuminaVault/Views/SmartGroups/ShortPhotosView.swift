@@ -35,13 +35,29 @@ public struct ShortPhotosView: View {
                 }
                 .padding(.horizontal)
                 
-                // Grid
-                LazyVGrid(columns: columns, spacing: 3) {
-                    ForEach(viewModel.shortPhotos) { item in
-                        MediaThumbnailView(item: item)
-                            .onTapGesture {
-                                selectedItem = item
-                            }
+                if viewModel.shortPhotos.isEmpty {
+                    VStack(spacing: 12) {
+                        Spacer().frame(height: 40)
+                        Image(systemName: "livephoto.slash")
+                            .font(.system(size: 44))
+                            .foregroundColor(.secondary)
+                        Text("No Short Photos or Live Clips")
+                            .font(.headline)
+                        Text("Live Photos, bursts, and video clips under 15 seconds will appear here.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 30)
+                    }
+                } else {
+                    // Grid
+                    LazyVGrid(columns: columns, spacing: 3) {
+                        ForEach(viewModel.shortPhotos) { item in
+                            MediaThumbnailView(item: item)
+                                .onTapGesture {
+                                    selectedItem = item
+                                }
+                        }
                     }
                 }
                 

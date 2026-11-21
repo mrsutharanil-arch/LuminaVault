@@ -3,6 +3,7 @@ import SwiftUI
 public struct GalleryView: View {
     @StateObject private var viewModel = GalleryViewModel()
     @ObservedObject private var scanner = PhotoLibraryScanner.shared
+    @AppStorage("app_ui_theme") private var appUiTheme: String = "modern"
     
     private let columns = [
         GridItem(.flexible(), spacing: 3),
@@ -17,12 +18,65 @@ public struct GalleryView: View {
             ZStack(alignment: .bottom) {
                 ScrollView {
                     VStack(spacing: 8) {
+                        // Permission Notice Card
+                        if scanner.permissionDenied {
+                            VStack(spacing: 12) {
+                                Image(systemName: "photo.badge.exclamationmark")
+                                    .font(.system(size: 40))
+                                    .foregroundColor(.orange)
+                                Text("Photo Library Access Required")
+                                    .font(.headline)
+                                Text("LuminaVault needs access to your camera roll to display, organize, and group your photos & videos.")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                    .multilineTextAlignment(.center)
+                                    .padding(.horizontal)
+                                Button(action: {
+                                    scanner.openSystemSettings()
+                                }) {
+                                    Text("Open Settings")
+                                        .font(.subheadline.bold())
+                                        .padding(.horizontal, 20)
+                                        .padding(.vertical, 8)
+                                        .background(Color.blue)
+                                        .foregroundColor(.white)
+                                        .cornerRadius(18)
+                                }
+                            }
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(Color(UIColor.secondarySystemBackground))
+                            .cornerRadius(14)
+                            .padding(.horizontal)
+                        }
+                        
+                        // Limited Access Notice
+                        if scanner.isLimitedAccess {
+                            HStack {
+                                Image(systemName: "info.circle.fill")
+                                    .foregroundColor(.blue)
+                                Text("Limited Photos Selected")
+                                    .font(.caption.bold())
+                                Spacer()
+                                Button("Manage Photos") {
+                                    scanner.presentLimitedPicker()
+                                }
+                                .font(.caption.bold())
+                                .foregroundColor(.blue)
+                            }
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 8)
+                            .background(Color.blue.opacity(0.12))
+                            .cornerRadius(10)
+                            .padding(.horizontal)
+                        }
+                        
                         // Scanner Banner if actively scanning
                         if scanner.isScanning {
                             HStack {
                                 ProgressView()
                                     .padding(.trailing, 4)
-                                Text("Scanning iPhone 14 Library (\(Int(scanner.scanProgress * 100))%)...")
+                                Text("Scanning iPhone Library (\(Int(scanner.scanProgress * 100))%)...")
                                     .font(.caption.bold())
                                     .foregroundColor(.white)
                                 Spacer()
@@ -86,19 +140,34 @@ public struct GalleryView: View {
                         }
                         .padding(.horizontal)
                         
-                        // 3-Column Grid
-                        LazyVGrid(columns: columns, spacing: 3) {
-                            ForEach(viewModel.filteredItems) { item in
-                                MediaThumbnailView(
-                                    item: item,
-                                    isSelected: viewModel.selectedItemIds.contains(item.id),
-                                    showSelectionCheckmark: viewModel.isSelectMode
-                                )
-                                .onTapGesture {
-                                    if viewModel.isSelectMode {
-                                        viewModel.toggleSelection(for: item)
-                                    } else {
-                                        viewModel.selectedMediaForDetail = item
+                        // Empty State
+                        if viewModel.filteredItems.isEmpty && !scanner.isScanning {
+                            VStack(spacing: 12) {
+                                Spacer().frame(height: 50)
+                                Image(systemName: "photo.on.rectangle.angled")
+                                    .font(.system(size: 44))
+                                    .foregroundColor(.secondary)
+                                Text("No Items Found")
+                                    .font(.headline)
+                                Text("No photos or videos match your current filter.")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        } else {
+                            // 3-Column Grid with Real Thumbnails
+                            LazyVGrid(columns: columns, spacing: 3) {
+                                ForEach(viewModel.filteredItems) { item in
+                                    MediaThumbnailView(
+                                        item: item,
+                                        isSelected: viewModel.selectedItemIds.contains(item.id),
+                                        showSelectionCheckmark: viewModel.isSelectMode
+                                    )
+                                    .onTapGesture {
+                                        if viewModel.isSelectMode {
+                                            viewModel.toggleSelection(for: item)
+                                        } else {
+                                            viewModel.selectedMediaForDetail = item
+                                        }
                                     }
                                 }
                             }
@@ -164,12 +233,29 @@ public struct GalleryView: View {
             .navigationTitle("Lumina Photos")
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: {
-                        Task {
-                            await scanner.startFullLibraryScan()
+                    HStack(spacing: 8) {
+                        Button(action: {
+                            Task {
+                                await scanner.startFullLibraryScan()
+                            }
+                        }) {
+                            Image(systemName: "arrow.triangle.2.circlepath")
                         }
-                    }) {
-                        Image(systemName: "arrow.triangle.2.circlepath")
+                        
+                        Button(action: {
+                            appUiTheme = "metro"
+                        }) {
+                            HStack(spacing: 2) {
+                                Image(systemName: "windows.logo")
+                                    .font(.caption2)
+                                Text("Metro")
+                                    .font(.caption2.bold())
+                            }
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 3)
+                            .background(Color.blue.opacity(0.15))
+                            .cornerRadius(4)
+                        }
                     }
                 }
                 

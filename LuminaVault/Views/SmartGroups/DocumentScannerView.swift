@@ -41,53 +41,62 @@ public struct DocumentScannerView: View {
                 .cornerRadius(10)
                 .padding(.horizontal)
                 
-                // Document List
-                VStack(spacing: 12) {
-                    ForEach(viewModel.filteredDocuments) { doc in
-                        Button(action: {
-                            selectedItem = doc
-                        }) {
-                            HStack(alignment: .top, spacing: 14) {
-                                // Thumbnail
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .fill(LinearGradient(colors: [.yellow.opacity(0.3), .orange.opacity(0.7)], startPoint: .topLeading, endPoint: .bottomTrailing))
-                                        .frame(width: 70, height: 90)
-                                    Image(systemName: "doc.text.fill")
-                                        .font(.title2)
-                                        .foregroundColor(.white)
-                                }
-                                
-                                VStack(alignment: .leading, spacing: 6) {
-                                    Text(doc.filename)
-                                        .font(.system(size: 14, weight: .bold))
-                                        .foregroundColor(.primary)
+                if viewModel.filteredDocuments.isEmpty {
+                    VStack(spacing: 12) {
+                        Spacer().frame(height: 40)
+                        Image(systemName: "doc.text")
+                            .font(.system(size: 44))
+                            .foregroundColor(.secondary)
+                        Text("No Documents Found")
+                            .font(.headline)
+                        Text("Tap 'Rescan' on the Smart Groups page to analyze your camera roll photos for documents and receipts using on-device Apple Vision.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 30)
+                    }
+                } else {
+                    // Document List with real thumbnails
+                    VStack(spacing: 12) {
+                        ForEach(viewModel.filteredDocuments) { doc in
+                            Button(action: {
+                                selectedItem = doc
+                            }) {
+                                HStack(alignment: .top, spacing: 14) {
+                                    MediaThumbnailView(item: doc)
+                                        .frame(width: 65, height: 65)
                                     
-                                    if let text = doc.detectedText {
-                                        Text(text)
-                                            .font(.caption)
-                                            .foregroundColor(.secondary)
-                                            .lineLimit(3)
-                                            .multilineTextAlignment(.leading)
+                                    VStack(alignment: .leading, spacing: 6) {
+                                        Text(doc.filename)
+                                            .font(.system(size: 14, weight: .bold))
+                                            .foregroundColor(.primary)
+                                        
+                                        if let text = doc.detectedText {
+                                            Text(text)
+                                                .font(.caption)
+                                                .foregroundColor(.secondary)
+                                                .lineLimit(3)
+                                                .multilineTextAlignment(.leading)
+                                        }
+                                        
+                                        HStack {
+                                            Text(doc.formattedDate)
+                                            Spacer()
+                                            Text(doc.formattedFileSize)
+                                        }
+                                        .font(.caption2)
+                                        .foregroundColor(.gray)
                                     }
-                                    
-                                    HStack {
-                                        Text(doc.formattedDate)
-                                        Spacer()
-                                        Text(doc.formattedFileSize)
-                                    }
-                                    .font(.caption2)
-                                    .foregroundColor(.gray)
                                 }
+                                .padding()
+                                .background(Color(UIColor.secondarySystemGroupedBackground))
+                                .cornerRadius(12)
+                                .shadow(color: .black.opacity(0.04), radius: 4)
                             }
-                            .padding()
-                            .background(Color(UIColor.secondarySystemGroupedBackground))
-                            .cornerRadius(12)
-                            .shadow(color: .black.opacity(0.04), radius: 4)
                         }
                     }
+                    .padding(.horizontal)
                 }
-                .padding(.horizontal)
             }
             .padding(.vertical)
         }

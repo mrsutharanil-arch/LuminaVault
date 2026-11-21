@@ -249,7 +249,7 @@
           <!-- Live Changing Slide -->
           <div class="my-auto self-center text-center">
             <i class="fa-solid fa-image text-4xl mb-1 text-white/90"></i>
-            <div id="tileLivePhotoName" class="text-xs font-semibold">Sarah_Portrait_Sunset.heic</div>
+            <div id="tileLivePhotoName" class="text-xs font-semibold">Camera Roll Media</div>
           </div>
           <div class="flex justify-between items-end">
             <span class="text-sm font-light">camera roll</span>
@@ -332,7 +332,10 @@
       <div id="view-all" class="metro-view hidden flex flex-col gap-2 pb-24">
         <div class="text-xs text-zinc-400 mb-1 flex items-center justify-between">
           <span>SORTED BY DATE</span>
-          <span class="text-cyan-400 font-semibold cursor-pointer" onclick="toggleSelectMode()">[select]</span>
+          <div class="flex gap-3">
+            <span class="text-cyan-400 font-semibold cursor-pointer" onclick="triggerImportDeviceMedia()">[import photos & videos]</span>
+            <span class="text-cyan-400 font-semibold cursor-pointer" onclick="toggleSelectMode()">[select]</span>
+          </div>
         </div>
         <div id="metroPhotoGrid" class="grid grid-cols-3 gap-1">
           <!-- Populated dynamically via JS -->
@@ -532,14 +535,25 @@
       grid.innerHTML = "";
       items.forEach(item => {
         const tile = document.createElement("div");
-        tile.className = "aspect-square bg-zinc-900 border border-black flex flex-col justify-between p-2 cursor-pointer hover:bg-zinc-800";
-        tile.innerHTML = `
-          <div class="text-[8px] text-zinc-500 font-mono">${item.size}</div>
-          <div class="self-center text-xl text-cyan-400">
-            <i class="fa-solid ${item.type === 'document' ? 'fa-file-lines' : item.type === 'face' ? 'fa-user' : 'fa-image'}"></i>
-          </div>
-          <div class="text-[9px] text-zinc-200 font-medium truncate">${item.filename}</div>
-        `;
+        tile.className = "aspect-square bg-zinc-900 border border-black flex flex-col justify-between p-2 cursor-pointer hover:bg-zinc-800 relative overflow-hidden";
+        if (item.url) {
+          tile.innerHTML = `
+            <img src="${item.url}" class="absolute inset-0 w-full h-full object-cover opacity-85" />
+            <div class="relative z-10 flex justify-between w-full">
+              <span class="text-[8px] bg-black/60 px-1 text-zinc-300 font-mono">${item.size}</span>
+              ${item.type === 'video' ? '<span class="text-[8px] bg-purple-600 px-1 text-white font-bold">VIDEO</span>' : ''}
+            </div>
+            <div class="relative z-10 text-[9px] bg-black/70 px-1 text-zinc-100 font-medium truncate">${item.filename}</div>
+          `;
+        } else {
+          tile.innerHTML = `
+            <div class="text-[8px] text-zinc-500 font-mono">${item.size}</div>
+            <div class="self-center text-xl text-cyan-400">
+              <i class="fa-solid ${item.type === 'document' ? 'fa-file-lines' : item.type === 'face' ? 'fa-user' : item.type === 'video' ? 'fa-video' : 'fa-image'}"></i>
+            </div>
+            <div class="text-[9px] text-zinc-200 font-medium truncate">${item.filename}</div>
+          `;
+        }
         tile.onclick = () => {
           if (confirm(`Lock "${item.filename}" into AES-256 Private Vault?`)) {
             vaultItems.push({ filename: item.filename, size: item.size });
@@ -552,6 +566,37 @@
         };
         grid.appendChild(tile);
       });
+    }
+
+    function triggerImportDeviceMedia() {
+      const input = document.createElement("input");
+      input.type = "file";
+      input.multiple = true;
+      input.accept = "image/*,video/*";
+      input.onchange = (e) => {
+        const files = e.target.files;
+        if (!files || files.length === 0) return;
+        items = [];
+        Array.from(files).forEach((file, index) => {
+          const isVideo = file.type.startsWith('video');
+          const url = URL.createObjectURL(file);
+          const sizeMB = (file.size / (1024 * 1024)).toFixed(1) + " MB";
+          items.push({
+            id: "real_" + index,
+            filename: file.name,
+            type: isVideo ? "video" : "photo",
+            size: sizeMB,
+            url: url,
+            date: new Date(file.lastModified).toLocaleDateString()
+          });
+        });
+        renderPhotos();
+        document.getElementById("tilePhotoCount").textContent = items.length;
+        if (items[0]) {
+          document.getElementById("tileLivePhotoName").textContent = items[0].filename;
+        }
+      };
+      input.click();
     }
 
     function renderDocuments() {

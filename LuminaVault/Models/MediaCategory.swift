@@ -2,6 +2,7 @@ import Foundation
 import SwiftUI
 
 public enum SmartGroupType: String, CaseIterable, Identifiable {
+    case videos = "Videos & 4K Clips"
     case documents = "Documents & OCR"
     case faces = "Face Areas & People"
     case areas = "Area & Locations"
@@ -12,6 +13,7 @@ public enum SmartGroupType: String, CaseIterable, Identifiable {
     
     public var icon: String {
         switch self {
+        case .videos: return "video.fill"
         case .documents: return "doc.text.magnifyingglass"
         case .faces: return "person.crop.rectangle.stack"
         case .areas: return "mappin.and.ellipse"
@@ -22,6 +24,7 @@ public enum SmartGroupType: String, CaseIterable, Identifiable {
     
     public var gradientColors: [Color] {
         switch self {
+        case .videos: return [Color.blue, Color.purple]
         case .documents: return [Color.orange, Color.red]
         case .faces: return [Color.purple, Color.indigo]
         case .areas: return [Color.teal, Color.blue]
@@ -32,6 +35,8 @@ public enum SmartGroupType: String, CaseIterable, Identifiable {
     
     public var description: String {
         switch self {
+        case .videos:
+            return "Original 4K, HD, Slo-Mo & Time-Lapse video recordings with duration breakdown"
         case .documents:
             return "Auto-scanned receipts, identity cards, printed text & whiteboards"
         case .faces:

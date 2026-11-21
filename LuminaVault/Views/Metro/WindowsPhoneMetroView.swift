@@ -27,6 +27,7 @@ public struct WindowsPhoneMetroView: View {
     @ObservedObject private var googleService = GooglePhotosService.shared
     @ObservedObject private var vaultService = PrivateVaultService.shared
     @ObservedObject private var fileManagerService = FileManagerService.shared
+    @AppStorage("app_ui_theme") private var appUiTheme: String = "metro"
     
     @State private var selectedPivot: String = "start"
     @State private var themeColor: MetroThemeColor = .nokiaCyan
@@ -34,7 +35,7 @@ public struct WindowsPhoneMetroView: View {
     @State private var selectedMediaItem: MediaItem? = nil
     @State private var tileFlipAngle: Double = 0.0
     
-    private let pivotSections = ["start", "all", "documents", "people", "vault", "cloud"]
+    private let pivotSections = ["start", "photos", "videos", "documents", "people", "vault", "cloud"]
     
     public init() {}
     
@@ -46,12 +47,32 @@ public struct WindowsPhoneMetroView: View {
             VStack(spacing: 0) {
                 // Top Windows Phone Header
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("LUMINA VAULT")
-                        .font(.system(size: 11, weight: .black, design: .default))
-                        .tracking(3)
-                        .foregroundColor(themeColor.color)
-                        .padding(.horizontal, 18)
-                        .padding(.top, 10)
+                    HStack {
+                        Text("LUMINA VAULT")
+                            .font(.system(size: 11, weight: .black, design: .default))
+                            .tracking(3)
+                            .foregroundColor(themeColor.color)
+                        
+                        Spacer()
+                        
+                        // Switch to iOS Modern Tab UI
+                        Button(action: {
+                            appUiTheme = "modern"
+                        }) {
+                            HStack(spacing: 4) {
+                                Image(systemName: "switch.2")
+                                Text("iOS UI")
+                            }
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundColor(.white.opacity(0.8))
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 3)
+                            .background(Color.white.opacity(0.15))
+                            .cornerRadius(4)
+                        }
+                    }
+                    .padding(.horizontal, 18)
+                    .padding(.top, 10)
                     
                     // Pivot Horizontal Title Header
                     ScrollView(.horizontal, showsIndicators: false) {
@@ -63,7 +84,7 @@ public struct WindowsPhoneMetroView: View {
                                     }
                                 }) {
                                     Text(section)
-                                        .font(.system(size: 38, weight: selectedPivot == section ? .light : .ultraLight, design: .default))
+                                        .font(.system(size: 36, weight: selectedPivot == section ? .light : .ultraLight, design: .default))
                                         .foregroundColor(selectedPivot == section ? .white : Color.gray.opacity(0.45))
                                 }
                             }
@@ -71,7 +92,7 @@ public struct WindowsPhoneMetroView: View {
                         .padding(.horizontal, 18)
                     }
                 }
-                .padding(.bottom, 8)
+                .padding(.bottom, 6)
                 
                 // Pivot Content Pages
                 TabView(selection: $selectedPivot) {
@@ -81,21 +102,25 @@ public struct WindowsPhoneMetroView: View {
                     
                     // 2. ALL PHOTOS
                     metroAllPhotosList
-                        .tag("all")
+                        .tag("photos")
                     
-                    // 3. DOCUMENTS & OCR
+                    // 3. VIDEOS
+                    metroVideosList
+                        .tag("videos")
+                    
+                    // 4. DOCUMENTS & OCR
                     metroDocumentsList
                         .tag("documents")
                     
-                    // 4. PEOPLE & FACES
+                    // 5. PEOPLE & FACES
                     metroPeopleList
                         .tag("people")
                     
-                    // 5. PRIVATE VAULT
+                    // 6. PRIVATE VAULT
                     metroVaultScreen
                         .tag("vault")
                     
-                    // 6. GOOGLE CLOUD
+                    // 7. GOOGLE CLOUD
                     metroCloudScreen
                         .tag("cloud")
                 }
@@ -105,40 +130,125 @@ public struct WindowsPhoneMetroView: View {
                 metroApplicationBar
             }
         }
+        .sheet(item: $selectedMediaItem) { item in
+            MediaDetailView(item: Binding(
+                get: { selectedMediaItem },
+                set: { selectedMediaItem = $0 }
+            ))
+        }
     }
     
     // MARK: - 1. Live Tiles Start Screen
     private var metroStartScreen: some View {
         ScrollView {
             VStack(spacing: 12) {
+                // Permission Denied Metro Alert Banner
+                if scanner.permissionDenied {
+                    Button(action: {
+                        scanner.openSystemSettings()
+                    }) {
+                        HStack(spacing: 14) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .font(.title)
+                                .foregroundColor(.yellow)
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text("PHOTOS ACCESS REQUIRED")
+                                    .font(.system(size: 13, weight: .black))
+                                    .foregroundColor(.white)
+                                Text("Tap to grant access in Settings to show your photos & videos.")
+                                    .font(.system(size: 11))
+                                    .foregroundColor(.white.opacity(0.85))
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .foregroundColor(.white)
+                        }
+                        .padding(14)
+                        .background(Color.red.opacity(0.8))
+                    }
+                }
+                
+                // Scanning Progress Banner
+                if scanner.isScanning {
+                    HStack(spacing: 12) {
+                        ProgressView()
+                            .tint(.white)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("SCANNING IPHONE CAMERA ROLL...")
+                                .font(.system(size: 11, weight: .black))
+                                .foregroundColor(.white)
+                            Text("\(scanner.totalScannedCount) items scanned (\(Int(scanner.scanProgress * 100))%)")
+                                .font(.system(size: 10))
+                                .foregroundColor(.white.opacity(0.8))
+                        }
+                        Spacer()
+                    }
+                    .padding(12)
+                    .background(themeColor.color)
+                }
+                
                 // Row 1: Large 2x2 Photo Live Tile
-                Button(action: { selectedPivot = "all" }) {
+                Button(action: { selectedPivot = "photos" }) {
                     ZStack(alignment: .bottomLeading) {
-                        Rectangle()
-                            .fill(LinearGradient(colors: [themeColor.color.opacity(0.85), Color.black], startPoint: .topLeading, endPoint: .bottomTrailing))
-                            .frame(height: 180)
+                        if let firstPhoto = scanner.photos.first {
+                            MediaThumbnailView(item: firstPhoto)
+                                .aspectRatio(16/9, contentMode: .fill)
+                                .frame(height: 180)
+                                .clipped()
+                                .overlay(Color.black.opacity(0.35))
+                        } else {
+                            Rectangle()
+                                .fill(LinearGradient(colors: [themeColor.color.opacity(0.85), Color.black], startPoint: .topLeading, endPoint: .bottomTrailing))
+                                .frame(height: 180)
+                        }
                         
                         VStack(alignment: .leading) {
                             HStack {
                                 Spacer()
                                 Image(systemName: "photo.stack.fill")
                                     .font(.title2)
-                                    .foregroundColor(.white.opacity(0.8))
+                                    .foregroundColor(.white.opacity(0.9))
                             }
                             Spacer()
                             Text("camera roll")
-                                .font(.system(size: 15, weight: .bold))
+                                .font(.system(size: 16, weight: .bold))
                                 .foregroundColor(.white)
-                            Text("\(scanner.allMediaItems.count) photos & videos")
-                                .font(.system(size: 11, weight: .regular))
-                                .foregroundColor(.white.opacity(0.8))
+                            Text("\(scanner.photos.count) photos • \(scanner.videos.count) videos")
+                                .font(.system(size: 12, weight: .regular))
+                                .foregroundColor(.white.opacity(0.85))
                         }
                         .padding(14)
                     }
                 }
                 
-                // Row 2: Two Medium Tiles (Documents OCR & People)
+                // Row 2: Two Medium Tiles (Videos & Documents OCR)
                 HStack(spacing: 12) {
+                    // Videos Tile
+                    Button(action: { selectedPivot = "videos" }) {
+                        ZStack(alignment: .bottomLeading) {
+                            Rectangle()
+                                .fill(Color.purple.opacity(0.9))
+                                .aspectRatio(1, contentMode: .fit)
+                            
+                            VStack(alignment: .leading) {
+                                HStack {
+                                    Spacer()
+                                    Text("\(scanner.videos.count)")
+                                        .font(.system(size: 32, weight: .light))
+                                        .foregroundColor(.white)
+                                }
+                                Spacer()
+                                Image(systemName: "video.fill")
+                                    .font(.title3)
+                                    .foregroundColor(.white)
+                                Text("videos")
+                                    .font(.system(size: 13, weight: .bold))
+                                    .foregroundColor(.white)
+                            }
+                            .padding(12)
+                        }
+                    }
+                    
                     // Documents OCR Tile
                     Button(action: { selectedPivot = "documents" }) {
                         ZStack(alignment: .bottomLeading) {
@@ -150,33 +260,36 @@ public struct WindowsPhoneMetroView: View {
                                 HStack {
                                     Spacer()
                                     Text("\(scanner.allMediaItems.filter { $0.isDocument }.count)")
-                                        .font(.system(size: 28, weight: .light))
+                                        .font(.system(size: 32, weight: .light))
                                         .foregroundColor(.white)
                                 }
                                 Spacer()
                                 Image(systemName: "doc.text.fill")
                                     .font(.title3)
                                     .foregroundColor(.white)
-                                Text("documents")
+                                Text("documents OCR")
                                     .font(.system(size: 13, weight: .bold))
                                     .foregroundColor(.white)
                             }
                             .padding(12)
                         }
                     }
-                    
+                }
+                
+                // Row 3: Two Medium Tiles (People & Screenshots)
+                HStack(spacing: 12) {
                     // Face Areas & People Tile
                     Button(action: { selectedPivot = "people" }) {
                         ZStack(alignment: .bottomLeading) {
                             Rectangle()
-                                .fill(Color.purple.opacity(0.9))
+                                .fill(Color.indigo.opacity(0.9))
                                 .aspectRatio(1, contentMode: .fit)
                             
                             VStack(alignment: .leading) {
                                 HStack {
                                     Spacer()
                                     Text("\(scanner.allMediaItems.filter { $0.isFaceGroup }.count)")
-                                        .font(.system(size: 28, weight: .light))
+                                        .font(.system(size: 32, weight: .light))
                                         .foregroundColor(.white)
                                 }
                                 Spacer()
@@ -190,9 +303,35 @@ public struct WindowsPhoneMetroView: View {
                             .padding(12)
                         }
                     }
+                    
+                    // Screenshots Tile
+                    Button(action: { selectedPivot = "photos" }) {
+                        ZStack(alignment: .bottomLeading) {
+                            Rectangle()
+                                .fill(Color.teal.opacity(0.9))
+                                .aspectRatio(1, contentMode: .fit)
+                            
+                            VStack(alignment: .leading) {
+                                HStack {
+                                    Spacer()
+                                    Text("\(scanner.screenshots.count)")
+                                        .font(.system(size: 32, weight: .light))
+                                        .foregroundColor(.white)
+                                }
+                                Spacer()
+                                Image(systemName: "camera.viewfinder")
+                                    .font(.title3)
+                                    .foregroundColor(.white)
+                                Text("screenshots")
+                                    .font(.system(size: 13, weight: .bold))
+                                    .foregroundColor(.white)
+                            }
+                            .padding(12)
+                        }
+                    }
                 }
                 
-                // Row 3: Wide Live Tile - Google Cloud Backup
+                // Row 4: Wide Live Tile - Google Cloud Backup
                 Button(action: { selectedPivot = "cloud" }) {
                     ZStack(alignment: .bottomLeading) {
                         Rectangle()
@@ -203,7 +342,7 @@ public struct WindowsPhoneMetroView: View {
                             HStack {
                                 Image(systemName: googleService.isBackingUp ? "arrow.triangle.2.circlepath.icloud.fill" : "checkmark.icloud.fill")
                                     .foregroundColor(.white)
-                                Text("google photos")
+                                Text("google photos backup")
                                     .font(.system(size: 14, weight: .bold))
                                     .foregroundColor(.white)
                                 Spacer()
@@ -214,7 +353,7 @@ public struct WindowsPhoneMetroView: View {
                                 }
                             }
                             Spacer()
-                            Text(googleService.isBackingUp ? "Backing up phone library to Google One..." : "Library in sync • 4.8 GB of 15 GB")
+                            Text(googleService.isBackingUp ? "Backing up photos to Google Cloud..." : "\(scanner.allMediaItems.count) items ready to backup")
                                 .font(.system(size: 11))
                                 .foregroundColor(.white.opacity(0.9))
                         }
@@ -222,7 +361,7 @@ public struct WindowsPhoneMetroView: View {
                     }
                 }
                 
-                // Row 4: Two Medium Tiles (Private Vault & Storage)
+                // Row 5: Two Medium Tiles (Private Vault & Storage)
                 HStack(spacing: 12) {
                     // Private Vault Tile
                     Button(action: { selectedPivot = "vault" }) {
@@ -240,7 +379,7 @@ public struct WindowsPhoneMetroView: View {
                                 }
                                 Spacer()
                                 Text("\(vaultService.vaultItems.count)")
-                                    .font(.system(size: 24, weight: .light))
+                                    .font(.system(size: 28, weight: .light))
                                     .foregroundColor(.white)
                                 Text("private vault")
                                     .font(.system(size: 13, weight: .bold))
@@ -251,7 +390,7 @@ public struct WindowsPhoneMetroView: View {
                     }
                     
                     // Phone Storage File Manager Tile
-                    Button(action: { selectedPivot = "all" }) {
+                    Button(action: { selectedPivot = "photos" }) {
                         ZStack(alignment: .bottomLeading) {
                             Rectangle()
                                 .fill(Color(red: 0.15, green: 0.15, blue: 0.18))
@@ -265,10 +404,10 @@ public struct WindowsPhoneMetroView: View {
                                         .foregroundColor(themeColor.color)
                                 }
                                 Spacer()
-                                Text("55.6 GB")
-                                    .font(.system(size: 22, weight: .light))
+                                Text(fileManagerService.storageBreakdown.formattedPhotosBytes)
+                                    .font(.system(size: 20, weight: .light))
                                     .foregroundColor(.white)
-                                Text("free of 128 GB")
+                                Text("media storage")
                                     .font(.system(size: 11, weight: .regular))
                                     .foregroundColor(.gray)
                             }
@@ -282,104 +421,177 @@ public struct WindowsPhoneMetroView: View {
         }
     }
     
-    // MARK: - 2. All Photos Metro List
+    // MARK: - 2. All Photos Metro List with Real Thumbnails
     private var metroAllPhotosList: some View {
         ScrollView {
-            LazyVGrid(columns: [GridItem(.flexible(), spacing: 4), GridItem(.flexible(), spacing: 4), GridItem(.flexible(), spacing: 4)], spacing: 4) {
-                ForEach(scanner.allMediaItems) { item in
-                    ZStack(alignment: .bottomLeading) {
-                        Rectangle()
-                            .fill(Color(red: 0.1, green: 0.1, blue: 0.12))
-                            .aspectRatio(1, contentMode: .fit)
-                        
-                        Image(systemName: item.mediaType.iconName)
-                            .font(.title2)
-                            .foregroundColor(themeColor.color.opacity(0.8))
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        
-                        Text(item.filename)
-                            .font(.system(size: 9, weight: .semibold))
-                            .foregroundColor(.white)
-                            .padding(4)
-                            .lineLimit(1)
-                    }
-                    .onTapGesture {
-                        selectedMediaItem = item
+            if scanner.allMediaItems.isEmpty {
+                VStack(spacing: 14) {
+                    Spacer().frame(height: 60)
+                    Image(systemName: "photo.on.rectangle.angled")
+                        .font(.system(size: 48))
+                        .foregroundColor(.gray)
+                    Text("No Photos Found")
+                        .font(.system(size: 18, weight: .light))
+                        .foregroundColor(.white)
+                    Text(scanner.permissionDenied ? "Allow Photo access in Settings to view your photos." : "Your iPhone camera roll is empty.")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+                    if scanner.permissionDenied {
+                        Button(action: { scanner.openSystemSettings() }) {
+                            Text("Open Settings")
+                                .font(.caption.bold())
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 8)
+                                .background(themeColor.color)
+                                .foregroundColor(.white)
+                        }
                     }
                 }
+            } else {
+                LazyVGrid(columns: [GridItem(.flexible(), spacing: 4), GridItem(.flexible(), spacing: 4), GridItem(.flexible(), spacing: 4)], spacing: 4) {
+                    ForEach(scanner.allMediaItems) { item in
+                        MediaThumbnailView(item: item)
+                            .onTapGesture {
+                                selectedMediaItem = item
+                            }
+                    }
+                }
+                .padding(.horizontal, 14)
             }
-            .padding(.horizontal, 16)
         }
     }
     
-    // MARK: - 3. Documents OCR Metro View
+    // MARK: - 3. Videos Metro List
+    private var metroVideosList: some View {
+        ScrollView {
+            if scanner.videos.isEmpty {
+                VStack(spacing: 14) {
+                    Spacer().frame(height: 60)
+                    Image(systemName: "video.slash")
+                        .font(.system(size: 48))
+                        .foregroundColor(.gray)
+                    Text("No Videos Found")
+                        .font(.system(size: 18, weight: .light))
+                        .foregroundColor(.white)
+                }
+            } else {
+                LazyVGrid(columns: [GridItem(.flexible(), spacing: 4), GridItem(.flexible(), spacing: 4)], spacing: 4) {
+                    ForEach(scanner.videos) { video in
+                        MediaThumbnailView(item: video)
+                            .onTapGesture {
+                                selectedMediaItem = video
+                            }
+                    }
+                }
+                .padding(.horizontal, 14)
+            }
+        }
+    }
+    
+    // MARK: - 4. Documents OCR Metro View
     private var metroDocumentsList: some View {
         ScrollView {
-            VStack(spacing: 12) {
-                ForEach(scanner.allMediaItems.filter { $0.isDocument }) { doc in
-                    HStack(spacing: 14) {
-                        Rectangle()
-                            .fill(Color.orange.opacity(0.85))
-                            .frame(width: 50, height: 50)
-                            .overlay(
-                                Image(systemName: "doc.text.fill")
-                                    .foregroundColor(.white)
-                            )
-                        
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text(doc.filename)
-                                .font(.system(size: 15, weight: .bold))
-                                .foregroundColor(.white)
-                            if let text = doc.detectedText {
-                                Text(text.replacingOccurrences(of: "\n", with: " "))
-                                    .font(.system(size: 11))
-                                    .foregroundColor(.gray)
-                                    .lineLimit(2)
-                            }
-                        }
-                        Spacer()
-                    }
-                    .padding(10)
-                    .background(Color(red: 0.08, green: 0.08, blue: 0.1))
+            let docs = scanner.allMediaItems.filter { $0.isDocument }
+            if docs.isEmpty {
+                VStack(spacing: 14) {
+                    Spacer().frame(height: 60)
+                    Image(systemName: "doc.text.magnifyingglass")
+                        .font(.system(size: 48))
+                        .foregroundColor(.orange)
+                    Text("No Documents Detected Yet")
+                        .font(.system(size: 18, weight: .light))
+                        .foregroundColor(.white)
+                    Text("Tap 'Scan Vision' in the Smart Groups tab to analyze photos for receipts, forms, and documents.")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 30)
                 }
+            } else {
+                VStack(spacing: 12) {
+                    ForEach(docs) { doc in
+                        Button(action: {
+                            selectedMediaItem = doc
+                        }) {
+                            HStack(spacing: 14) {
+                                MediaThumbnailView(item: doc)
+                                    .frame(width: 55, height: 55)
+                                
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text(doc.filename)
+                                        .font(.system(size: 14, weight: .bold))
+                                        .foregroundColor(.white)
+                                    if let text = doc.detectedText {
+                                        Text(text.replacingOccurrences(of: "\n", with: " "))
+                                            .font(.system(size: 11))
+                                            .foregroundColor(.gray)
+                                            .lineLimit(2)
+                                    }
+                                }
+                                Spacer()
+                            }
+                            .padding(10)
+                            .background(Color(red: 0.08, green: 0.08, blue: 0.1))
+                        }
+                    }
+                }
+                .padding(.horizontal, 16)
             }
-            .padding(.horizontal, 16)
         }
     }
     
-    // MARK: - 4. People & Faces Metro View
+    // MARK: - 5. People & Faces Metro View
     private var metroPeopleList: some View {
         ScrollView {
-            VStack(spacing: 12) {
-                ForEach(scanner.allMediaItems.filter { $0.isFaceGroup }) { personItem in
-                    HStack(spacing: 14) {
-                        Rectangle()
-                            .fill(Color.purple.opacity(0.85))
-                            .frame(width: 50, height: 50)
-                            .overlay(
-                                Image(systemName: "person.fill")
-                                    .foregroundColor(.white)
-                            )
-                        
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text(personItem.detectedFaces.first?.personTag ?? "Detected Portrait")
-                                .font(.system(size: 15, weight: .bold))
-                                .foregroundColor(.white)
-                            Text("\(personItem.detectedFaces.count) Faces • \(personItem.areaName ?? "Location")")
-                                .font(.system(size: 11))
-                                .foregroundColor(.gray)
-                        }
-                        Spacer()
-                    }
-                    .padding(10)
-                    .background(Color(red: 0.08, green: 0.08, blue: 0.1))
+            let faceItems = scanner.allMediaItems.filter { $0.isFaceGroup }
+            if faceItems.isEmpty {
+                VStack(spacing: 14) {
+                    Spacer().frame(height: 60)
+                    Image(systemName: "person.crop.rectangle.stack")
+                        .font(.system(size: 48))
+                        .foregroundColor(.purple)
+                    Text("No Faces Detected Yet")
+                        .font(.system(size: 18, weight: .light))
+                        .foregroundColor(.white)
+                    Text("Run Apple Vision scan to isolate face areas and cluster portraits from your camera roll.")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 30)
                 }
+            } else {
+                VStack(spacing: 12) {
+                    ForEach(faceItems) { personItem in
+                        Button(action: {
+                            selectedMediaItem = personItem
+                        }) {
+                            HStack(spacing: 14) {
+                                MediaThumbnailView(item: personItem)
+                                    .frame(width: 55, height: 55)
+                                
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text(personItem.detectedFaces.first?.personTag ?? "Portrait Shot")
+                                        .font(.system(size: 14, weight: .bold))
+                                        .foregroundColor(.white)
+                                    Text("\(personItem.detectedFaces.count) Face(s) Detected • \(personItem.formattedDate)")
+                                        .font(.system(size: 11))
+                                        .foregroundColor(.gray)
+                                }
+                                Spacer()
+                            }
+                            .padding(10)
+                            .background(Color(red: 0.08, green: 0.08, blue: 0.1))
+                        }
+                    }
+                }
+                .padding(.horizontal, 16)
             }
-            .padding(.horizontal, 16)
         }
     }
     
-    // MARK: - 5. Private Vault Metro View
+    // MARK: - 6. Private Vault Metro View
     private var metroVaultScreen: some View {
         VStack(spacing: 24) {
             Spacer()
@@ -392,13 +604,16 @@ public struct WindowsPhoneMetroView: View {
                 .font(.system(size: 22, weight: .light))
                 .foregroundColor(.white)
             
-            Text("256-bit AES-GCM Encrypted Sandbox")
+            Text("\(vaultService.vaultItems.count) Files • 256-bit AES-GCM Encrypted")
                 .font(.system(size: 12))
                 .foregroundColor(.gray)
             
             Button(action: {
                 Task {
                     _ = await vaultService.authenticateWithFaceID()
+                    if vaultService.isUnlocked {
+                        selectedPivot = "photos"
+                    }
                 }
             }) {
                 HStack(spacing: 8) {
@@ -417,7 +632,7 @@ public struct WindowsPhoneMetroView: View {
         .padding()
     }
     
-    // MARK: - 6. Google Cloud Metro View
+    // MARK: - 7. Google Cloud Metro View
     private var metroCloudScreen: some View {
         VStack(alignment: .leading, spacing: 20) {
             Text("cloud sync")
@@ -428,7 +643,7 @@ public struct WindowsPhoneMetroView: View {
                 Text("Google Account")
                     .font(.system(size: 11, weight: .bold))
                     .foregroundColor(themeColor.color)
-                Text(googleService.account.email ?? "user.iphone14@gmail.com")
+                Text(googleService.account.email ?? "Not Connected")
                     .font(.system(size: 16))
                     .foregroundColor(.white)
             }
@@ -447,7 +662,7 @@ public struct WindowsPhoneMetroView: View {
             }) {
                 HStack {
                     Image(systemName: "arrow.triangle.2.circlepath")
-                    Text("BACKUP ALL PHONE PHOTOS")
+                    Text("BACKUP ALL PHONE PHOTOS (\(scanner.allMediaItems.count))")
                 }
                 .font(.system(size: 13, weight: .bold))
                 .frame(maxWidth: .infinity)
@@ -464,19 +679,21 @@ public struct WindowsPhoneMetroView: View {
     // MARK: - Windows Phone Application Bar
     private var metroApplicationBar: some View {
         HStack(spacing: 20) {
-            // Circle button 1: Search
-            metroCircleButton(icon: "magnifyingglass", title: "search") {
-                selectedPivot = "all"
+            // Circle button 1: Photos
+            metroCircleButton(icon: "photo.stack", title: "photos") {
+                selectedPivot = "photos"
             }
             
-            // Circle button 2: Sync
-            metroCircleButton(icon: "arrow.triangle.2.circlepath", title: "sync") {
-                googleService.queueAllForBackup(items: scanner.allMediaItems)
+            // Circle button 2: Videos
+            metroCircleButton(icon: "video.fill", title: "videos") {
+                selectedPivot = "videos"
             }
             
-            // Circle button 3: Vault
-            metroCircleButton(icon: "lock.shield", title: "vault") {
-                selectedPivot = "vault"
+            // Circle button 3: Rescan
+            metroCircleButton(icon: "arrow.clockwise", title: "rescan") {
+                Task {
+                    await scanner.startFullLibraryScan()
+                }
             }
             
             // Circle button 4: Color Theme
@@ -486,12 +703,12 @@ public struct WindowsPhoneMetroView: View {
             
             Spacer()
             
-            // Three Dots (...)
+            // Switch UI mode Button
             Button(action: {
-                showAppBarMenu.toggle()
+                appUiTheme = "modern"
             }) {
-                Image(systemName: "ellipsis")
-                    .font(.system(size: 18, weight: .bold))
+                Image(systemName: "rectangle.grid.2x2.fill")
+                    .font(.system(size: 18))
                     .foregroundColor(.white)
                     .padding(8)
             }
